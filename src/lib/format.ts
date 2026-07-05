@@ -52,3 +52,30 @@ export function formatUpdatedAt(timestamp: number | null): string {
   })
   return `Zuletzt aktualisiert: ${time}`
 }
+
+/** Relative Zeit „vor 2 h" / „vor 3 Tagen" (für News/Events). */
+export function formatRelativeTime(timestamp: number): string {
+  const diffMs = Date.now() - timestamp
+  const diffMin = Math.floor(diffMs / 60000)
+  if (diffMin < 1) return 'gerade eben'
+  if (diffMin < 60) return `vor ${diffMin} min`
+  const diffH = Math.floor(diffMin / 60)
+  if (diffH < 24) return `vor ${diffH} h`
+  const diffD = Math.floor(diffH / 24)
+  if (diffD === 1) return 'gestern'
+  return `vor ${diffD} Tagen`
+}
+
+/** Sonnenuntergang aus ISO (z. B. „20:14") mit Emoji. */
+export function formatSunset(iso: string): string {
+  const time = new Date(iso).toLocaleTimeString(deLocale, {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  return `🌇 ${time} Uhr`
+}
+
+/** Km mit einer Nachkommastache DE-formatiert („12,3 km"). */
+export function formatKm(km: number): string {
+  return `${km.toLocaleString(deLocale, { maximumFractionDigits: 1 })} km`
+}

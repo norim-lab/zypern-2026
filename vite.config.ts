@@ -48,7 +48,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-        // Open-Meteo cachen: veraltete Daten sofort zeigen, dann aktualisieren
+        // Open-Meteo cachen: veraltete Daten sofort zeigen, dann aktualisieren.
+        // v0.2: Marine-Endpoint + AllOrigins-Proxy ergänzt (60 min).
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.hostname === 'api.open-meteo.com',
@@ -56,6 +57,24 @@ export default defineConfig({
             options: {
               cacheName: 'open-meteo-cache',
               expiration: { maxAgeSeconds: 60 * 30 }, // 30 min
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => url.hostname === 'marine-api.open-meteo.com',
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'open-meteo-marine-cache',
+              expiration: { maxAgeSeconds: 60 * 60 }, // 60 min
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => url.hostname === 'api.allorigins.win',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'allorigins-cache',
+              expiration: { maxAgeSeconds: 60 * 60, maxEntries: 50 }, // 60 min
               cacheableResponse: { statuses: [0, 200] },
             },
           },

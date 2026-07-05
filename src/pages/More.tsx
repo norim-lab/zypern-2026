@@ -80,12 +80,24 @@ export function More() {
         {emergency.ehicNote} {emergency.waterNote}
       </WarningCard>
 
+      {/* Archiv (übergreifend) ------------------------------------------------*/}
+      <SectionTitle icon="🗄️">Archiv</SectionTitle>
+      <Card>
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+          Abgelaufene Events, alte News & erledigte To-dos — zentral gesammelt.
+          Nichts verschwindet kommentarlos; löschen nur manuell.
+        </p>
+        <Button href="/archiv" variant="secondary" icon="🗄️" className="w-full">
+          Zum Archiv
+        </Button>
+      </Card>
+
       {/* Roadmap-Platzhalter --------------------------------------------------*/}
       <SectionTitle icon="🚀">Bald verfügbar</SectionTitle>
       <Card className="opacity-60">
         <ul className="space-y-2 text-sm">
-          <li>📡 <span className="font-medium">v0.2:</span> Sync mit Notion-Hub, geteilte Checklisten, Tagesplaner</li>
-          <li>📸 <span className="font-medium">v0.3:</span> Fotos/Erinnerungen, Budget-Tracker, Push-Benachrichtigungen</li>
+          <li>📡 <span className="font-medium">v0.3:</span> Sync mit Notion-Hub, geteilte Checklisten, Tagesplaner</li>
+          <li>📸 <span className="font-medium">v0.4:</span> Fotos/Erinnerungen, Budget-Tracker, Push-Benachrichtigungen</li>
         </ul>
         <p className="mt-2 text-xs text-slate-400">
           Diese Funktionen sind noch nicht aktiv — nur vorbereitet.

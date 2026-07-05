@@ -1,12 +1,21 @@
 // Dashboard.tsx — Startscreen: Countdown, Wetter, Flugstatus, Schnellzugriffe, To-dos.
+// v0.2: + HeatBanner (Hitze/UV) + Sonnenuntergang + Strandtasche-Schnellzugriff.
+import { useState } from 'react'
 import { useCountdown } from '@/hooks/useCountdown'
+import { useWeather } from '@/hooks/useWeather'
+import { useMarine } from '@/hooks/useMarine'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { Countdown } from '@/components/ui/Countdown'
 import { WeatherWidget } from '@/components/widgets/WeatherWidget'
 import { FlightCard } from '@/components/widgets/FlightCard'
 import { QuickActions } from '@/components/widgets/QuickActions'
 import { TodoHintCard } from '@/components/widgets/TodoHintCard'
 import { Card } from '@/components/ui/Card'
-import { outboundFlight, returnFlight, accommodation } from '@/data/tripData'
+import { Button } from '@/components/ui/Button'
+import { HeatBanner } from '@/components/discover/HeatBanner'
+import { WarningCard } from '@/components/ui/WarningCard'
+import { checklists, outboundFlight, returnFlight, accommodation, weatherLocations } from '@/data/tripData'
+import { formatSunset } from '@/lib/format'
 
 /** Wahr, wenn heute ein Reisetag ist (dann Flugkarte prominent). */
 function isTravelDay(iso: string): boolean {
@@ -17,12 +26,34 @@ function isTravelDay(iso: string): boolean {
 
 export function Dashboard() {
   const { target, value } = useCountdown()
+  const { data: weather } = useWeather(weatherLocations[0])
+  const { data: marine } = useMarine({ lat: accommodation.lat, lon: accommodation.lon })
   const showOutbound = isTravelDay(outboundFlight.departureAt)
   const showReturn = isTravelDay(returnFlight.departureAt)
 
+  // Strandtasche: wiederverwendbare Mini-Checkliste mit Reset.
+  const beachBag = checklists.find((c) => c.id === 'strandtasche')!
+  const [bagState, setBagState] = useLocalStorage<Record<string, boolean>>(
+    `zyp2026:checklist:${beachBag.id}`,
+    {},
+  )
+  const [bagOpen, setBagOpen] = useState(false)
+
   return (
     <div className="space-y-4 p-4 pb-24">
+      {/* HeatBanner ganz oben — auffällige Mittags-Warnung. */}
+      {weather?.daily[0] && (
+        <HeatBanner tempMax={weather.daily[0].tempMax} uvIndexMax={weather.daily[0].uvIndexMax} />
+      )}
+
       <Countdown target={target} value={value} />
+
+      {/* Sonnenuntergang-Hinweis (schönste Strandzeit mit Kindern ab ~16:30). */}
+      {marine?.sunset && (
+        <WarningCard level="info" title="Sonnenuntergang" icon={undefined}>
+          Heute {formatSunset(marine.sunset)} — schönste Strandzeit mit Kindern ab ca. 16:30.
+        </WarningCard>
+      )}
 
       <WeatherWidget />
 
@@ -31,6 +62,48 @@ export function Dashboard() {
       {showReturn && <FlightCard flight={returnFlight} kind="Rückflug" />}
 
       <QuickActions />
+
+      {/* Strandtasche — Schnellzugriff + Reset pro Ausflug */}
+      <Card title="🏖️ Strandtasche">
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {beachBag.items.filter((i) => bagState[i.id]).length} / {beachBag.items.length} gepackt · Reset pro Ausflug.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => setBagOpen((v) => !v)} className="!min-h-0 !py-1.5 text-xs">
+              {bagOpen ? 'Verbergen' : 'Anzeigen'}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setBagState({})}
+              className="!min-h-0 !py-1.5 text-xs"
+            >
+              ↺ Reset
+            </Button>
+          </div>
+        </div>
+        {bagOpen && (
+          <ul className="mt-2 space-y-1">
+            {beachBag.items.map((item) => {
+              const done = !!bagState[item.id]
+              return (
+                <li key={item.id}>
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                    <input
+                      type="checkbox"
+                      checked={done}
+                      onChange={() => setBagState((p) => ({ ...p, [item.id]: !p[item.id] }))}
+                      className="h-4 w-4 accent-ok"
+                    />
+                    <span className={`text-sm ${done ? 'text-slate-400 line-through' : ''}`}>{item.label}</span>
+                  </label>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </Card>
+
       <TodoHintCard />
 
       <Card title="Reise" icon="🧭">

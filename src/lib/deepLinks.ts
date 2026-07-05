@@ -30,3 +30,16 @@ export function ryanairApp(): string {
   // Fällt auf die Ryanair-Webseite zurück, wenn die App nicht installiert ist.
   return 'https://www.ryanair.com/de/de/trip/flights'
 }
+
+/** Google-Maps-Navigation direkt zu Koordinaten (destination=LAT,LON). */
+export function mapsDirLatLon(lat: number, lon: number): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`
+}
+
+/**
+ * Google-Maps-Suche ohne expliziten Standort — Maps nutzt automatisch den
+ * aktuellen Standort des Geräts. Ideal für „In der Nähe suchen"-Kacheln.
+ */
+export function mapsSearchHere(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+}

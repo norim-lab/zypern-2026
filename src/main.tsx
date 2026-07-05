@@ -11,6 +11,13 @@ import { Accommodation } from '@/pages/Accommodation'
 import { RentalCar } from '@/pages/RentalCar'
 import { Lists } from '@/pages/Lists'
 import { More } from '@/pages/More'
+import { DiscoverLayout } from '@/pages/discover/DiscoverLayout'
+import { Beaches } from '@/pages/discover/Beaches'
+import { Excursions } from '@/pages/discover/Excursions'
+import { Food } from '@/pages/discover/Food'
+import { Events } from '@/pages/discover/Events'
+import { News } from '@/pages/discover/News'
+import { Archive } from '@/pages/Archive'
 
 // Service Worker registrieren (Auto-Update, Offline-Caching).
 registerSW({ immediate: true })
@@ -25,8 +32,20 @@ const router = createBrowserRouter([
       { path: 'fluege', element: <Flights /> },
       { path: 'wohnen', element: <Accommodation /> },
       { path: 'auto', element: <RentalCar /> },
+      {
+        path: 'entdecken',
+        element: <DiscoverLayout />,
+        children: [
+          { index: true, element: <Beaches /> },
+          { path: 'ausfluege', element: <Excursions /> },
+          { path: 'essen', element: <Food /> },
+          { path: 'events', element: <Events /> },
+          { path: 'news', element: <News /> },
+        ],
+      },
       { path: 'listen', element: <Lists /> },
       { path: 'mehr', element: <More /> },
+      { path: 'archiv', element: <Archive /> },
     ],
   },
 ])

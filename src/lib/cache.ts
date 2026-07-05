@@ -43,6 +43,12 @@ export function isCacheStale(key: string, maxAgeMs: number): boolean {
 export const WEATHER_TTL = 30 * 60 * 1000
 /** 5 Minuten (Flugstatus an Reisetagen). */
 export const FLIGHT_TTL = 5 * 60 * 1000
+/** 60 Minuten — Marine-/News-/Events-Intervall (v0.2 „Entdecken"). */
+export const HOURLY_TTL = 60 * 60 * 1000
+// Aliase für semantische Klarheit in den neuen Hooks.
+export const MARINE_TTL = HOURLY_TTL
+export const NEWS_TTL = HOURLY_TTL
+export const EVENTS_TTL = HOURLY_TTL
 
 /** localStorage-Schlüssel (zentral, um Tippfehler zu vermeiden). */
 export const CACHE_KEYS = {
@@ -51,4 +57,9 @@ export const CACHE_KEYS = {
   flightOutbound: 'zyp2026:flight-outbound',
   flightReturn: 'zyp2026:flight-return',
   flightLastRefresh: 'zyp2026:flight-last-refresh',
+  // v0.2 „Entdecken"
+  marine: 'zyp2026:marine',
+  news: 'zyp2026:news',
+  events: 'zyp2026:events',
+  geoLocation: 'zyp2026:geo-location',
 } as const

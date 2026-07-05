@@ -200,12 +200,24 @@ export interface Parking {
 export interface Excursion {
   /** Name des Ziels */
   name: string
-  /** Fahrzeit ab Aradippou als Text */
+  /** Latitude für Distanzberechnung + Maps-Navigation */
+  lat: number
+  /** Longitude für Distanzberechnung + Maps-Navigation */
+  lon: number
+  /** Fahrzeit ab Aradippou als Text (Fallback/Hinweis) */
   travelTime: string
   /** Google-Maps-Navigations-Deep-Link */
   navigationUrl: string
   /** Optionale Kurzbeschreibung */
   description?: string
+  /** Kinder-Tauglichkeit Kleinkind (~2 J.) */
+  kidsToddler?: string
+  /** Kinder-Tauglichkeit Schulkind (~6–10 J.) */
+  kidsSchool?: string
+  /** Schatten-/Hitze-Hinweis */
+  shadeNote?: string
+  /** Markierung als Abreisetag-Tipp */
+  departureDayTip?: boolean
 }
 
 /** Ein Prüfpunkt in einer Checkliste (To-do/Packliste). */
@@ -253,3 +265,114 @@ export interface WeatherLocation {
   /** IANA-Zeitzone, z. B. „Asia/Nicosia" */
   timezone: string
 }
+
+// ===========================================================================
+// v0.2 — Bereich „Entdecken" (Strände · Ausflüge · Lokale · Events · News)
+// ===========================================================================
+
+/** Ein Strand mit Seed-Daten. Live-Werte (Wasser, Wellen) kommen via MarineProvider. */
+export interface Beach {
+  /** Eindeutige ID */
+  id: string
+  /** Name des Strands */
+  name: string
+  lat: number
+  lon: number
+  /** Beschreibung */
+  description: string
+  /** Beste Tageszeit (z. B. „ab 16:30") */
+  bestTime?: string
+  /** Ausstattungs-/Eigenschafts-Tags (flach, ruhig, Rettungsschwimmer, Tavernen, WC, Sandstrand) */
+  tags: BeachTag[]
+}
+
+/** Ausstattungs-Tags eines Strands (für die Filter-Logik). */
+export type BeachTag =
+  | 'flach'
+  | 'ruhig'
+  | 'rettungsschwimmer'
+  | 'tavernen'
+  | 'wc'
+  | 'sandstrand'
+  | 'flugspotting'
+
+/** Ein kuratierter Lokal-Spot (KEINE erfundenen Namen — nur Orts-/Gegend-Beschreibungen). */
+export interface LocalSpot {
+  /** Eindeutige ID */
+  id: string
+  /** Beschreibender Name (z. B. „Fischtavernen an Piale Pasha") */
+  name: string
+  /** Kategorie */
+  category: LocalCategory
+  /** Maps-Such-Query für „Details in Maps prüfen" */
+  query: string
+  /** Kurzer Hinweis */
+  note?: string
+}
+
+export type LocalCategory = 'Taverne/Meze' | 'Fisch' | 'Souvlaki/Grill' | 'Café & Eis' | 'kinderfreundlich'
+
+/** Eine Such-Kachel („In der Nähe suchen") — ohne Standort, Maps nutzt GPS. */
+export interface LocalSearchTile {
+  /** Anzeigelabel */
+  label: string
+  /** Maps-Such-Query */
+  query: string
+  /** Emoji-Icon */
+  icon: string
+}
+
+/** Ein manuell erfasstes Event (für Panigiria/Dorffeste, die man vor Ort erfährt). */
+export interface ManualEvent {
+  /** Eindeutige ID */
+  id: string
+  title: string
+  /** ISO-Datum (YYYY-MM-DD) */
+  date: string
+  /** Ortsname */
+  locationName?: string
+  lat?: number
+  lon?: number
+  /** Notiz */
+  note?: string
+  /** Maps-/Quell-Link */
+  url?: string
+}
+
+/** Eine Event-Quelle (RSS = maschinenlesbar, link = externe Kachel). */
+export interface EventSource {
+  /** Anzeigename */
+  name: string
+  /** Quell-URL */
+  url: string
+  /** 'rss' = automatisch parsen, 'link' = nur als externe Kachel zeigen */
+  type: 'rss' | 'link'
+}
+
+/** Eine News-Quelle (RSS = maschinenlesbar, link = externe Kachel). */
+export interface NewsSource {
+  name: string
+  url: string
+  type: 'rss' | 'link'
+}
+
+/** Ein archiviertes Element (Events/News/Todos) für den Archiv-Bereich. */
+export interface ArchivedItem {
+  /** Eindeutige ID */
+  id: string
+  /** Art des Elements */
+  kind: 'event' | 'news' | 'todo'
+  /** Titel */
+  title: string
+  /** Quelle/Link */
+  sourceUrl?: string
+  /** Archivierungszeit (ms) */
+  archivedAt: number
+  /** Ursprüngliches Datum/Zeit (ms) falls vorhanden */
+  originalDate?: number
+  /** Freies Payload für Details (z. B. Notiz, Ort) */
+  payload?: string
+}
+
+/** Standort-Quellen-Info für den Standort-Chip. */
+export type LocationSource = 'live' | 'cached' | 'fallback'
