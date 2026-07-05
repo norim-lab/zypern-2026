@@ -28,4 +28,11 @@ export interface MarineProvider {
   readonly name: string
   /** Liefert aktuelle Meeres- + Wetterbedingungen für einen Punkt. */
   fetch(point: LatLng): Promise<BeachConditions>
+  /**
+   * v0.3 (Performance): Liefert Bedingungen für VIELE Punkte in EINEM Request.
+   * Open-Meteo unterstützt kommagetrennte latitude/longitude; Antwort = Array
+   * in gleicher Reihenfolge. Reduziert 13 Einzel-Calls auf 1 (Marine + 1 Forecast).
+   * Default-Implementierung fällt auf Einzelfetches zurück.
+   */
+  fetchBatch(points: LatLng[]): Promise<BeachConditions[]>
 }

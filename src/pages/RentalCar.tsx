@@ -7,6 +7,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { rentalCar } from '@/data/tripData'
 import { tel, mailto } from '@/lib/deepLinks'
 import { formatDateTime, formatEur } from '@/lib/format'
+import { mask } from '@/hooks/usePrivateMode'
 
 export function RentalCar() {
   return (
@@ -23,7 +24,7 @@ export function RentalCar() {
       <Card title="Reservierung" icon="📄">
         <dl>
           <InfoRow label="Plattform">{rentalCar.platform}</InfoRow>
-          <InfoRow label="Reservierungsnr." mono>{rentalCar.reservationNo}</InfoRow>
+          <InfoRow label="Reservierungsnr." mono>{mask(rentalCar.reservationNo)}</InfoRow>
           <InfoRow label="Status">
             {rentalCar.confirmed ? '✅ Bestätigt' : '⏳ Ausstehend'}
           </InfoRow>
@@ -54,7 +55,7 @@ export function RentalCar() {
           <InfoRow label="Preis bezahlt">{formatEur(rentalCar.priceEur)}</InfoRow>
           {rentalCar.voucherCode && (
             <>
-              <InfoRow label="Gutscheincode" mono>{rentalCar.voucherCode}</InfoRow>
+              <InfoRow label="Gutscheincode" mono>{mask(rentalCar.voucherCode)}</InfoRow>
               <InfoRow label="Erstattung">
                 −{formatEur(rentalCar.voucherRefundEur ?? 0)} nach Rückkehr
               </InfoRow>
@@ -77,7 +78,7 @@ export function RentalCar() {
       <Card title="Hotline" icon="📞">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Button href={tel(rentalCar.hotlinePhone)} variant="primary" icon="📞">
-            {rentalCar.hotlinePhone}
+            {mask(rentalCar.hotlinePhone)}
           </Button>
           <Button href={mailto(rentalCar.hotlineEmail, 'Mietwagen Zypern 2026')} variant="secondary" icon="✉️">
             E-Mail

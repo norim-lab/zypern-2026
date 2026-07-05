@@ -1,5 +1,6 @@
 // ExcursionCard.tsx — Ausflugsziel-Karte mit Distanz + Kinder-/Schatten-Notes.
-import { useState } from 'react'
+// v0.3: memoisiert, damit Listen-Updates die Karten nicht unnötig rerendern.
+import { memo, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Tag } from '@/components/ui/Tag'
 import { Button } from '@/components/ui/Button'
@@ -12,7 +13,7 @@ export interface ExcursionCardProps {
   excursion: WithDistance<Excursion>
 }
 
-export function ExcursionCard({ excursion }: ExcursionCardProps) {
+export const ExcursionCard = memo(function ExcursionCard({ excursion }: ExcursionCardProps) {
   const { item, km, driveMin } = excursion
   const [expanded, setExpanded] = useState(false)
 
@@ -69,4 +70,4 @@ export function ExcursionCard({ excursion }: ExcursionCardProps) {
       </div>
     </Card>
   )
-}
+})

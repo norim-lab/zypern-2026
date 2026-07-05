@@ -9,6 +9,7 @@ import { flightStatusProvider } from '@/providers'
 import type { FlightStatus } from '@/providers'
 import type { Flight } from '@/data/types'
 import { CACHE_KEYS, FLIGHT_TTL, readCache, writeCache } from '@/lib/cache'
+import { useRefreshTask } from './useRefreshTask'
 
 export interface UseFlightStatusResult {
   status: FlightStatus | null
@@ -76,12 +77,14 @@ export function useFlightStatus(flight: Flight): UseFlightStatusResult {
     }
   }, [load, key])
 
-  // 5-Minuten-Refresh nur an Reisetagen.
-  useEffect(() => {
-    if (!isTravelDay(flight.departureAt)) return
-    const id = setInterval(() => void load(true), FLIGHT_TTL)
-    return () => clearInterval(id)
-  }, [flight.departureAt, load])
+  // v0.3: Zentraler RefreshScheduler — 5-Min-Intervall nur an Reisetagen.
+  const travelDay = isTravelDay(flight.departureAt)
+  useRefreshTask({
+    id: `flight:${flight.flightNumber}`,
+    intervalMs: FLIGHT_TTL,
+    enabled: travelDay,
+    run: () => void load(true),
+  })
 
   const refresh = useCallback(async () => {
     await load(false)

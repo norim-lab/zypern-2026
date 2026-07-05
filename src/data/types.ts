@@ -347,6 +347,8 @@ export interface EventSource {
   url: string
   /** 'rss' = automatisch parsen, 'link' = nur als externe Kachel zeigen */
   type: 'rss' | 'link'
+  /** v0.3: Schlüssel in der Whitelist der eigenen /api/fetch-Function (optional). */
+  srcKey?: string
 }
 
 /** Eine News-Quelle (RSS = maschinenlesbar, link = externe Kachel). */
@@ -354,6 +356,8 @@ export interface NewsSource {
   name: string
   url: string
   type: 'rss' | 'link'
+  /** v0.3: Schlüssel in der Whitelist der eigenen /api/fetch-Function (optional). */
+  srcKey?: string
 }
 
 /** Ein archiviertes Element (Events/News/Todos) für den Archiv-Bereich. */

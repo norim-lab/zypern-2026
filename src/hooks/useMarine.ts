@@ -11,6 +11,7 @@ import { marineProvider } from '@/providers'
 import type { BeachConditions } from '@/providers'
 import type { LatLng } from '@/lib/geo'
 import { MARINE_TTL, isCacheStale, readCache, writeCache } from '@/lib/cache'
+import { useRefreshTask } from './useRefreshTask'
 
 export interface UseMarineResult {
   data: BeachConditions | null
@@ -66,22 +67,14 @@ export function useMarine(point: LatLng): UseMarineResult {
     if (isCacheStale(key, MARINE_TTL)) void load(true)
   }, [load, key])
 
-  // Auto-Refresh stündlich.
-  useEffect(() => {
-    const id = setInterval(() => void load(true), MARINE_TTL)
-    return () => clearInterval(id)
-  }, [load])
-
-  // Bei Fokus aktualisieren falls stale.
-  useEffect(() => {
-    const handler = () => {
-      if (document.visibilityState === 'visible' && isCacheStale(key, MARINE_TTL)) {
-        void load(true)
-      }
-    }
-    document.addEventListener('visibilitychange', handler)
-    return () => document.removeEventListener('visibilitychange', handler)
-  }, [load, key])
+  // v0.3: Zentraler RefreshScheduler (stündlich; Fokus/Online übernimmt der Scheduler).
+  useRefreshTask({
+    id: `marine:${key}`,
+    intervalMs: MARINE_TTL,
+    run: () => {
+      if (isCacheStale(key, MARINE_TTL)) void load(true)
+    },
+  })
 
   const refresh = useCallback(async () => {
     await load(false)

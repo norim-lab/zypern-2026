@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { accommodation, parking, bookingCodes } from '@/data/tripData'
 import { tel } from '@/lib/deepLinks'
+import { mask } from '@/hooks/usePrivateMode'
 import { useState } from 'react'
 
 export function QuickActions() {
@@ -39,7 +40,7 @@ export function QuickActions() {
               className="flex items-center justify-between border-b border-slate-200 py-1.5 last:border-0 dark:border-slate-600"
             >
               <dt className="text-xs text-slate-500 dark:text-slate-400">{c.label}</dt>
-              <dd className="font-mono text-sm font-semibold">{c.code}</dd>
+              <dd className="font-mono text-sm font-semibold">{mask(c.code)}</dd>
             </div>
           ))}
         </dl>

@@ -7,6 +7,7 @@ import { WarningCard } from '@/components/ui/WarningCard'
 import { RefreshBar } from '@/components/layout/RefreshBar'
 import { formatDateTime, formatDuration, formatTime } from '@/lib/format'
 import { ryanairApp } from '@/lib/deepLinks'
+import { mask } from '@/hooks/usePrivateMode'
 import type { Flight } from '@/data/types'
 
 export interface FlightCardProps {
@@ -59,8 +60,8 @@ export function FlightCard({ flight, kind }: FlightCardProps) {
       <dl>
         <InfoRow label="Abflug">{formatDateTime(flight.departureAt)} Uhr</InfoRow>
         <InfoRow label="Ankunft">{formatDateTime(flight.arrivalAt)} Uhr</InfoRow>
-        <InfoRow label="Buchungscode" mono>{flight.bookingCode}</InfoRow>
-        <InfoRow label="Kontakt">{flight.contact}</InfoRow>
+        <InfoRow label="Buchungscode" mono>{mask(flight.bookingCode)}</InfoRow>
+        <InfoRow label="Kontakt">{mask(flight.contact)}</InfoRow>
       </dl>
 
       {/* Live-Status-Badge */}
@@ -87,7 +88,7 @@ export function FlightCard({ flight, kind }: FlightCardProps) {
           <ul className="list-disc space-y-1 pl-5">
             {flight.seats.map((s) => (
               <li key={s.seat}>
-                <span className="font-mono font-semibold">{s.seat}</span> · {s.person}
+                <span className="font-mono font-semibold">{s.seat}</span> · {mask(s.person)}
                 {s.note && <span className="text-slate-500"> ({s.note})</span>}
               </li>
             ))}
@@ -96,7 +97,7 @@ export function FlightCard({ flight, kind }: FlightCardProps) {
           <ul className="list-disc space-y-1 pl-5">
             {flight.luggage.map((l) => (
               <li key={l.person}>
-                {l.person}: {l.holdKg ? `${l.holdKg} kg Aufgabegepäck · ` : ''}{l.note}
+                {mask(l.person)}: {l.holdKg ? `${l.holdKg} kg Aufgabegepäck · ` : ''}{l.note}
               </li>
             ))}
           </ul>

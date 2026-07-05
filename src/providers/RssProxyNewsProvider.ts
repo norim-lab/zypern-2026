@@ -1,49 +1,43 @@
 // =============================================================================
-// RssProxyNewsProvider.ts — Default-News-Provider via öffentlichem CORS-Proxy.
+// RssProxyNewsProvider.ts — Default-News-Provider über die zentrale Proxy-Kette.
 //
-// CORS-Realität: Direkte Browser-Fetches auf RSS-Feeds scheitern meist an CORS.
-// Daher nutzt dieser Provider allorigins.win als austauschbaren Proxy-Wrapper.
-// Das Provider-Interface bleibt stabil → später auf eine eigene Edge-Function
-// umstellbar, ohne das UI anzufassen (nur in providers/index.ts binden).
+// v0.3: Statt direkt allorigins zu nutzen, läuft jede Quelle durch fetchViaProxy:
+//   (1) eigene Function /api/fetch?src=<srcKey>
+//   (2) allorigins-Fallback
+//   (3) null → Quelle erscheint als Link-Kachel (Hook setzt linkSources).
 //
-// Fehlertoleranz: Wenn der Proxy/Feed scheitert, liefert der Provider ein
-// leeres Resultat; das UI zeigt dann gecachte/Link-Kacheln (kein Crash).
+// Fehlertoleranz: Einzelquellen-Fehler werden ignoriert; die Hooks zeigen
+// gecachte Daten mit Hinweis „Stand HH:MM — Quellen gerade nicht erreichbar".
 // =============================================================================
 import type { NewsProvider, NewsResult } from './NewsProvider'
 import type { NewsSource } from '@/data/types'
 import type { FeedItem } from '@/lib/rss'
 import { parseRssXml } from '@/lib/rss'
-
-const PROXY = 'https://api.allorigins.win/raw?url='
+import { fetchViaProxy } from '@/lib/proxyChain'
 
 export class RssProxyNewsProvider implements NewsProvider {
   readonly name = 'RSS-Proxy'
 
   async fetch(sources: NewsSource[]): Promise<NewsResult> {
     const rssSources = sources.filter((s) => s.type === 'rss')
-    // Alle Quellen parallel laden; einzelne Fehler werden ignoriert.
     const settled = await Promise.allSettled(
-      rssSources.map(async (src): Promise<{ src: NewsSource; items: FeedItem[] }> => {
-        const url = `${PROXY}${encodeURIComponent(src.url)}`
-        const res = await fetch(url)
-        if (!res.ok) throw new Error(`${src.name}: ${res.status}`)
-        const xml = await res.text()
-        return { src, items: parseRssXml(xml, src.name) }
+      rssSources.map(async (src): Promise<FeedItem[]> => {
+        const xml = await fetchViaProxy(src.srcKey ?? null, src.url)
+        if (xml === null) throw new Error(`${src.name} nicht erreichbar`)
+        return parseRssXml(xml, src.name)
       }),
     )
 
     const items: FeedItem[] = []
     const okSources: string[] = []
-    for (const r of settled) {
+    settled.forEach((r, i) => {
       if (r.status === 'fulfilled') {
-        items.push(...r.value.items)
-        okSources.push(r.value.src.name)
+        items.push(...r.value)
+        okSources.push(rssSources[i].name)
       }
-    }
+    })
 
-    // Neueste zuerst.
     items.sort((a, b) => (b.pubDateMs ?? 0) - (a.pubDateMs ?? 0))
-
     return { items, fetchedAt: Date.now(), sources: okSources }
   }
 }

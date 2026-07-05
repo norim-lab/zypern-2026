@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { InfoRow } from '@/components/ui/InfoRow'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { accommodation } from '@/data/tripData'
+import { mask } from '@/hooks/usePrivateMode'
 
 export function Accommodation() {
   return (
@@ -23,9 +24,9 @@ export function Accommodation() {
 
       <Card title="Adresse & Kontakt" icon="📍">
         <dl>
-          <InfoRow label="Adresse">{accommodation.address}</InfoRow>
-          <InfoRow label="Plus Code" mono>{accommodation.plusCode}</InfoRow>
-          <InfoRow label="Eigentümer">{accommodation.owner}</InfoRow>
+          <InfoRow label="Adresse">{mask(accommodation.address)}</InfoRow>
+          <InfoRow label="Plus Code" mono>{mask(accommodation.plusCode)}</InfoRow>
+          <InfoRow label="Eigentümer">{mask(accommodation.owner)}</InfoRow>
         </dl>
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Button href={accommodation.navigationUrl} external variant="primary" icon="🧭">

@@ -2,9 +2,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { registerSW } from 'virtual:pwa-register'
+import { startRefreshScheduler } from '@/lib/refreshScheduler'
 import './index.css'
 import App from './App.tsx'
+import { lazy } from 'react'
+import { LazyTab } from '@/components/layout/LazyTab'
 import { Dashboard } from '@/pages/Dashboard'
 import { Flights } from '@/pages/Flights'
 import { Accommodation } from '@/pages/Accommodation'
@@ -12,15 +14,19 @@ import { RentalCar } from '@/pages/RentalCar'
 import { Lists } from '@/pages/Lists'
 import { More } from '@/pages/More'
 import { DiscoverLayout } from '@/pages/discover/DiscoverLayout'
-import { Beaches } from '@/pages/discover/Beaches'
-import { Excursions } from '@/pages/discover/Excursions'
-import { Food } from '@/pages/discover/Food'
-import { Events } from '@/pages/discover/Events'
-import { News } from '@/pages/discover/News'
-import { Archive } from '@/pages/Archive'
+// v0.3 Code-Splitting: Entdecken-Untertabs + Archiv werden lazy geladen.
+const Beaches = lazy(() => import('@/pages/discover/Beaches').then((m) => ({ default: m.Beaches })))
+const Excursions = lazy(() => import('@/pages/discover/Excursions').then((m) => ({ default: m.Excursions })))
+const Food = lazy(() => import('@/pages/discover/Food').then((m) => ({ default: m.Food })))
+const Events = lazy(() => import('@/pages/discover/Events').then((m) => ({ default: m.Events })))
+const News = lazy(() => import('@/pages/discover/News').then((m) => ({ default: m.News })))
+const Archive = lazy(() => import('@/pages/Archive').then((m) => ({ default: m.Archive })))
 
-// Service Worker registrieren (Auto-Update, Offline-Caching).
-registerSW({ immediate: true })
+// v0.3: SW-Registrierung erfolgt jetzt React-seitig via PwaUpdateBanner
+// (useRegisterSW mit Update-Banner). Imperatives registerSW entfällt.
+// Refresh-Scheduler starten (stündlich/30min/5min + Fokus + Online,
+// pausiert im Hintergrund für Akkuschonung).
+startRefreshScheduler()
 
 // Bottom-Tab-Routing (6 Tabs).
 const router = createBrowserRouter([
@@ -36,16 +42,16 @@ const router = createBrowserRouter([
         path: 'entdecken',
         element: <DiscoverLayout />,
         children: [
-          { index: true, element: <Beaches /> },
-          { path: 'ausfluege', element: <Excursions /> },
-          { path: 'essen', element: <Food /> },
-          { path: 'events', element: <Events /> },
-          { path: 'news', element: <News /> },
+          { index: true, element: <LazyTab component={Beaches} tabName="Strände" /> },
+          { path: 'ausfluege', element: <LazyTab component={Excursions} tabName="Ausflüge" /> },
+          { path: 'essen', element: <LazyTab component={Food} tabName="Essen" /> },
+          { path: 'events', element: <LazyTab component={Events} tabName="Events" /> },
+          { path: 'news', element: <LazyTab component={News} tabName="News" /> },
         ],
       },
       { path: 'listen', element: <Lists /> },
       { path: 'mehr', element: <More /> },
-      { path: 'archiv', element: <Archive /> },
+      { path: 'archiv', element: <LazyTab component={Archive} tabName="Archiv" /> },
     ],
   },
 ])

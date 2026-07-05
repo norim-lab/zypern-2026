@@ -11,6 +11,7 @@ import type { FeedItem } from '@/lib/rss'
 import { isRelevant } from '@/lib/rss'
 import { NEWS_TTL, CACHE_KEYS, isCacheStale, readCache, writeCache } from '@/lib/cache'
 import { useArchive } from './useArchive'
+import { useRefreshTask } from './useRefreshTask'
 import { newsSources, newsKeywords, newsLinkTiles } from '@/data/tripData'
 
 const ARCHIVE_AFTER_MS = 48 * 60 * 60 * 1000
@@ -82,22 +83,14 @@ export function useNews(): UseNewsResult {
     if (isCacheStale(CACHE_KEYS.news, NEWS_TTL)) void load(true)
   }, [load])
 
-  // Stündlicher Auto-Refresh.
-  useEffect(() => {
-    const id = setInterval(() => void load(true), NEWS_TTL)
-    return () => clearInterval(id)
-  }, [load])
-
-  // Fokus-Refresh.
-  useEffect(() => {
-    const handler = () => {
-      if (document.visibilityState === 'visible' && isCacheStale(CACHE_KEYS.news, NEWS_TTL)) {
-        void load(true)
-      }
-    }
-    document.addEventListener('visibilitychange', handler)
-    return () => document.removeEventListener('visibilitychange', handler)
-  }, [load])
+  // v0.3: Zentraler RefreshScheduler (stündlich; Fokus/Online übernommen).
+  useRefreshTask({
+    id: 'news',
+    intervalMs: NEWS_TTL,
+    run: () => {
+      if (isCacheStale(CACHE_KEYS.news, NEWS_TTL)) void load(true)
+    },
+  })
 
   const refresh = useCallback(async () => {
     await load(false)

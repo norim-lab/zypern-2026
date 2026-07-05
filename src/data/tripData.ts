@@ -19,6 +19,17 @@ import type {
   EventSource,
   NewsSource,
 } from './types'
+// v0.3: Personenbezogene Werte sind in privateData.ts gekapselt und werden hier
+// nur referenziert. So lassen sie sich zentral pflegen und für Demos maskieren
+// (VITE_PRIVATE_MODE, siehe hooks/usePrivateMode).
+import {
+  travelersPrivate,
+  flightsPrivate,
+  accommodationPrivate,
+  rentalCarPrivate,
+  parkingPrivate,
+  bookingCodesPrivate,
+} from './privateData'
 
 /** Orte für das Wetter-Modul (Aradippou default, Weeze für Abreisetag). */
 export const weatherLocations: WeatherLocation[] = [
@@ -32,39 +43,25 @@ export const trip: Trip = {
   startDate: '2026-07-17',
   endDate: '2026-08-07',
   subtitle: 'Familienurlaub in Aradippou · 17.07.–07.08.2026',
-  travelers: [
-    { name: 'Sovandy Sim', role: 'Erwachsener' },
-    { name: 'Miron Schmude', role: 'Erwachsener' },
-    { name: 'Maia', role: 'Kind' },
-    { name: 'Elly', role: 'Kleinkind' },
-  ],
+  travelers: travelersPrivate,
 }
 
 // Flüge (Ryanair) ----------------------------------------------------------
 // Bordkarten NUR digital über die Ryanair-App!
 
-/** Hinflug FR3878: Düsseldorf-Weeze → Paphos. */
+/** Hinflug FR3878: Düsseldorf-Weeze → Paphos. Personenbezogene Anteile aus privateData. */
 export const outboundFlight: Flight = {
   airline: 'Ryanair',
   flightNumber: 'FR3878',
-  bookingCode: 'B3VHMK',
-  contact: 'Sovandy Sim',
+  bookingCode: flightsPrivate.bookingCode,
+  contact: flightsPrivate.contact,
   origin: { code: 'NRN', name: 'Düsseldorf-Weeze', city: 'Weeze' },
   destination: { code: 'PFO', name: 'Paphos', city: 'Paphos' },
   departureAt: '2026-07-17T13:35:00',
   arrivalAt: '2026-07-17T18:30:00',
   durationMin: 235, // 3 h 55 min
-  seats: [
-    { person: 'Sovandy Sim + Elly', seat: '31F', note: 'Kleinkind auf dem Schoß' },
-    { person: 'Miron Schmude', seat: '31D' },
-    { person: 'Maia (Kind)', seat: '31E' },
-  ],
-  luggage: [
-    { person: 'Sovandy Sim', holdKg: 20, note: 'Kleine Tasche 40×20×25 cm, kein Priority' },
-    { person: 'Miron Schmude', holdKg: 20, note: 'Kleine Tasche 40×20×25 cm, kein Priority' },
-    { person: 'Maia', note: 'Kinderausstattung kostenlos: Sitzerhöhung' },
-    { person: 'Elly', note: 'Kinderausstattung kostenlos: Kinderwagen + Babyschale' },
-  ],
+  seats: flightsPrivate.seats,
+  luggage: flightsPrivate.luggage,
   flightradarUrl: 'https://www.flightradar24.com/data/flights/fr3878',
   notes: [
     'Bordkarten NUR digital über die Ryanair-App!',
@@ -73,28 +70,19 @@ export const outboundFlight: Flight = {
   ],
 }
 
-/** Rückflug FR3879: Paphos → Düsseldorf-Weeze. */
+/** Rückflug FR3879: Paphos → Düsseldorf-Weeze. Personenbezogene Anteile aus privateData. */
 export const returnFlight: Flight = {
   airline: 'Ryanair',
   flightNumber: 'FR3879',
-  bookingCode: 'B3VHMK',
-  contact: 'Sovandy Sim',
+  bookingCode: flightsPrivate.bookingCode,
+  contact: flightsPrivate.contact,
   origin: { code: 'PFO', name: 'Paphos', city: 'Paphos' },
   destination: { code: 'NRN', name: 'Düsseldorf-Weeze', city: 'Weeze' },
   departureAt: '2026-08-07T18:55:00',
   arrivalAt: '2026-08-07T22:15:00',
   durationMin: 260, // 4 h 20 min
-  seats: [
-    { person: 'Sovandy Sim + Elly', seat: '31F', note: 'Kleinkind auf dem Schoß' },
-    { person: 'Miron Schmude', seat: '31D' },
-    { person: 'Maia (Kind)', seat: '31E' },
-  ],
-  luggage: [
-    { person: 'Sovandy Sim', holdKg: 20, note: 'Kleine Tasche 40×20×25 cm, kein Priority' },
-    { person: 'Miron Schmude', holdKg: 20, note: 'Kleine Tasche 40×20×25 cm, kein Priority' },
-    { person: 'Maia', note: 'Kinderausstattung kostenlos: Sitzerhöhung' },
-    { person: 'Elly', note: 'Kinderausstattung kostenlos: Kinderwagen + Babyschale' },
-  ],
+  seats: flightsPrivate.seats,
+  luggage: flightsPrivate.luggage,
   flightradarUrl: 'https://www.flightradar24.com/data/flights/fr3879',
   notes: [
     'Bordkarten NUR digital über die Ryanair-App!',
@@ -105,10 +93,10 @@ export const returnFlight: Flight = {
 // Unterkunft („Damian Home") ----------------------------------------------
 
 export const accommodation: Accommodation = {
-  name: 'Damian Home',
-  owner: 'Bruder Damian (kostenlos)',
-  address: '25is Martiou 4, 7104 Aradippou, Zypern',
-  plusCode: 'XH2V+9C Aradippou',
+  name: accommodationPrivate.name,
+  owner: accommodationPrivate.owner,
+  address: accommodationPrivate.address,
+  plusCode: accommodationPrivate.plusCode,
   lat: 34.95,
   lon: 33.59,
   navigationUrl: 'https://www.google.com/maps/dir/?api=1&destination=Damian+Home+Aradippou+Cyprus',
@@ -118,7 +106,7 @@ export const accommodation: Accommodation = {
     'Eigener Pool',
     '🔑 Schlüssel bereits in Deutschland übergeben — einpacken!',
   ],
-  notes: ['Kostenlose Unterkunft im Haus von Bruder Damian.'],
+  notes: accommodationPrivate.notes,
   poolSafety: {
     warning:
       'Pool ist NICHT gesichert (kein Zaun, keine Abdeckung). Besondere Vorsicht mit Kindern!',
@@ -159,7 +147,7 @@ export const accommodation: Accommodation = {
 
 export const rentalCar: RentalCar = {
   platform: 'HolidayCheck / Auto Europe',
-  reservationNo: '1483985',
+  reservationNo: rentalCarPrivate.reservationNo,
   confirmed: true,
   localVendor: 'Get Your Car',
   counter: 'Schalter im Terminal Paphos (PFO)',
@@ -172,7 +160,7 @@ export const rentalCar: RentalCar = {
   returnLocation: 'Flughafen Paphos (PFO)',
   returnTimeChangeNeeded: '⚠️ Soll auf ca. 15:30 geändert werden — Abflug ist 18:55!',
   priceEur: 476.47,
-  voucherCode: 'INHNC67YDL',
+  voucherCode: rentalCarPrivate.voucherCode,
   voucherRefundEur: 119.12,
   conditions: [
     'Kaution 1.000 € auf echter Kreditkarte (Chip+PIN, auf Miron Schmude; kein Amex/Debit).',
@@ -183,20 +171,20 @@ export const rentalCar: RentalCar = {
     'Vollkasko ohne SB (durch Erstattung) — bei Schaden IMMER Polizeiprotokoll.',
     'Gutschein-Erstattung: Bankverbindung eintragen, Frist 30 Tage nach Rückkehr.',
   ],
-  hotlinePhone: '+49 89 143 79 153',
-  hotlineEmail: 'mietwagen@holidaycheck.com',
+  hotlinePhone: rentalCarPrivate.hotlinePhone,
+  hotlineEmail: rentalCarPrivate.hotlineEmail,
 }
 
 // Parken Flughafen Weeze --------------------------------------------------
 
 export const parking: Parking = {
   area: 'P2',
-  bookingNo: 'WEWSP754368',
-  bookedBy: 'Sovandy Sim',
+  bookingNo: parkingPrivate.bookingNo,
+  bookedBy: parkingPrivate.bookedBy,
   priceEur: 156.8,
   entryAt: '2026-07-17T10:30:00', // ca.
   exitAt: '2026-08-08T05:00:00', // ca.
-  licensePlate: 'BNQM842',
+  licensePlate: parkingPrivate.licensePlate,
   notes: [
     'Automatische Kennzeichnerkennung — kein Ticket nötig.',
     'Fußweg zum Terminal: ca. 300–400 m (~5 min).',
@@ -438,21 +426,21 @@ export const localSearchTiles: LocalSearchTile[] = [
 /** Konfigurierte Event-Quellen. 'rss' = automatisch parsen, 'link' = externe Kachel. */
 export const eventSources: EventSource[] = [
   { name: 'Larnaka Tourism Board Events', url: 'https://www.larnakaregion.com/events',
-    type: 'link' },
+    type: 'link', srcKey: 'larnakaregion' },
   { name: 'In-Cyprus (Philenews) Events', url: 'https://in-cyprus.philenews.com/category/events/',
-    type: 'link' },
+    type: 'link', srcKey: 'incyprus-events' },
   { name: 'All About Limassol', url: 'https://allaboutlimassol.com/events/',
-    type: 'link' },
+    type: 'link', srcKey: 'allaboutlimassol' },
   { name: 'Visit Cyprus Events', url: 'https://www.visitcyprus.com/index.php/info/events',
-    type: 'link' },
+    type: 'link', srcKey: 'visitcyprus' },
 ]
 
 // Nachrichten (v0.2) -------------------------------------------------------
 
 /** Konfigurierte News-Quellen. */
 export const newsSources: NewsSource[] = [
-  { name: 'Cyprus Mail', url: 'https://cyprus-mail.com/feed/', type: 'rss' },
-  { name: 'In-Cyprus (Philenews)', url: 'https://in-cyprus.philenews.com/feed/', type: 'rss' },
+  { name: 'Cyprus Mail', url: 'https://cyprus-mail.com/feed/', type: 'rss', srcKey: 'cyprus-mail' },
+  { name: 'In-Cyprus (Philenews)', url: 'https://in-cyprus.philenews.com/feed/', type: 'rss', srcKey: 'incyprus' },
 ]
 
 /** Link-Kacheln (kein RSS, nur externe Quellen). */
@@ -556,11 +544,5 @@ export const emergency: EmergencyInfo = {
   waterNote: 'Leitungswasser ist trinkbar.',
 }
 
-/** Buchungscodes als Schnellzugriff (für Dashboard). */
-export const bookingCodes: { label: string; code: string }[] = [
-  { label: 'Ryanair (Flüge)', code: 'B3VHMK' },
-  { label: 'Mietwagen Auto Europe', code: '1483985' },
-  { label: 'Gutschein', code: 'INHNC67YDL' },
-  { label: 'Parken Weeze P2', code: 'WEWSP754368' },
-  { label: 'Kennzeichen', code: 'BNQM842' },
-]
+/** Buchungscodes als Schnellzugriff (für Dashboard). Codes aus privateData. */
+export const bookingCodes: { label: string; code: string }[] = bookingCodesPrivate

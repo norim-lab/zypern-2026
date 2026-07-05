@@ -10,6 +10,7 @@ import { weatherProvider } from '@/providers'
 import type { WeatherData } from '@/providers'
 import type { WeatherLocation } from '@/data/types'
 import { CACHE_KEYS, WEATHER_TTL, isCacheStale, readCache, writeCache } from '@/lib/cache'
+import { useRefreshTask } from './useRefreshTask'
 
 export interface UseWeatherResult {
   data: WeatherData | null
@@ -64,22 +65,15 @@ export function useWeather(location: WeatherLocation): UseWeatherResult {
     }
   }, [load])
 
-  // Auto-Refresh alle 30 Minuten.
-  useEffect(() => {
-    const id = setInterval(() => void load(true), WEATHER_TTL)
-    return () => clearInterval(id)
-  }, [load])
-
-  // Bei App-Fokus aktualisieren (nur falls Daten älter als 30 min).
-  useEffect(() => {
-    const handler = () => {
-      if (document.visibilityState === 'visible' && isCacheStale(CACHE_KEYS.weather, WEATHER_TTL)) {
-        void load(true)
-      }
-    }
-    document.addEventListener('visibilitychange', handler)
-    return () => document.removeEventListener('visibilitychange', handler)
-  }, [load])
+  // v0.3: Zentraler RefreshScheduler (statt eigenem setInterval + Fokus-Listener).
+  // 30-Minuten-Intervall; Fokus/Online übernimmt der Scheduler global.
+  useRefreshTask({
+    id: `weather:${location.name}`,
+    intervalMs: WEATHER_TTL,
+    run: () => {
+      if (isCacheStale(CACHE_KEYS.weather, WEATHER_TTL)) void load(true)
+    },
+  })
 
   const refresh = useCallback(async () => {
     await load(false)

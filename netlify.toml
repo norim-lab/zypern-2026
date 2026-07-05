@@ -1,0 +1,21 @@
+# netlify.toml — Netlify-Deployment-Konfig.
+# Statisches Frontend (dist) + Serverless-Function unter /api/fetch.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# SPA-Fallback (PWA ist client-seitig geroutet).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Function-Pfad-Deklaration (Netlify legt /netlify/functions/fetch.js → /.netlify/functions/fetch).
+# Damit die App /api/fetch nutzen kann, kommt ein Rewrite:
+[[redirects]]
+  from = "/api/fetch"
+  to = "/.netlify/functions/fetch"
+  status = 200
+  force = true

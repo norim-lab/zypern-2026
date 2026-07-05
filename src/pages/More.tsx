@@ -7,6 +7,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { parking, excursions, emergency } from '@/data/tripData'
 import { tel } from '@/lib/deepLinks'
 import { formatDateTime, formatEur } from '@/lib/format'
+import { mask } from '@/hooks/usePrivateMode'
 
 export function More() {
   return (
@@ -15,10 +16,10 @@ export function More() {
       <SectionTitle icon="🅿️">Parken Flughafen Weeze</SectionTitle>
       <Card title={`Parkplatz ${parking.area}`} icon="🅿️">
         <dl>
-          <InfoRow label="Buchungsnr." mono>{parking.bookingNo}</InfoRow>
-          <InfoRow label="Buchender">{parking.bookedBy}</InfoRow>
+          <InfoRow label="Buchungsnr." mono>{mask(parking.bookingNo)}</InfoRow>
+          <InfoRow label="Buchender">{mask(parking.bookedBy)}</InfoRow>
           <InfoRow label="Preis">{formatEur(parking.priceEur)}</InfoRow>
-          <InfoRow label="Kennzeichen" mono>{parking.licensePlate}</InfoRow>
+          <InfoRow label="Kennzeichen" mono>{mask(parking.licensePlate)}</InfoRow>
           <InfoRow label="Einfahrt">ca. {formatDateTime(parking.entryAt)} Uhr</InfoRow>
           <InfoRow label="Ausfahrt">ca. {formatDateTime(parking.exitAt)} Uhr</InfoRow>
         </dl>

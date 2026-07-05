@@ -11,6 +11,7 @@ import type { EventsResult } from '@/providers'
 import type { ManualEvent, EventSource } from '@/data/types'
 import { useLocalStorage } from './useLocalStorage'
 import { useArchive } from './useArchive'
+import { useRefreshTask } from './useRefreshTask'
 import { EVENTS_TTL, CACHE_KEYS, isCacheStale, readCache, writeCache } from '@/lib/cache'
 import { eventSources } from '@/data/tripData'
 
@@ -84,20 +85,14 @@ export function useEvents(): UseEventsResult {
     if (isCacheStale(CACHE_KEYS.events, EVENTS_TTL)) void load(true)
   }, [load])
 
-  useEffect(() => {
-    const id = setInterval(() => void load(true), EVENTS_TTL)
-    return () => clearInterval(id)
-  }, [load])
-
-  useEffect(() => {
-    const handler = () => {
-      if (document.visibilityState === 'visible' && isCacheStale(CACHE_KEYS.events, EVENTS_TTL)) {
-        void load(true)
-      }
-    }
-    document.addEventListener('visibilitychange', handler)
-    return () => document.removeEventListener('visibilitychange', handler)
-  }, [load])
+  // v0.3: Zentraler RefreshScheduler (stündlich; Fokus/Online übernommen).
+  useRefreshTask({
+    id: 'events',
+    intervalMs: EVENTS_TTL,
+    run: () => {
+      if (isCacheStale(CACHE_KEYS.events, EVENTS_TTL)) void load(true)
+    },
+  })
 
   const refresh = useCallback(async () => {
     await load(false)
