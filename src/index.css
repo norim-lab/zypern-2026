@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Globales Layout: volle Höhe, Zypern-Sand Hintergrund im Light-Mode.
+   Sichere Bereiche (Notch/Home-Indicator) über env(safe-area-inset-*). */
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: #faf3e0;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .dark body {
+    background-color: #0b1220;
+  }
+}
+
+@layer components {
+  /* Kartenbasiertes Layout-Primitive */
+  .card-base {
+    @apply rounded-card bg-white p-4 shadow-sm dark:bg-slate-800;
+  }
+
+  /* Touch-Ziel min. 48px (Barrierefreiheit auf Touch-Geräten) */
+  .touch-target {
+    @apply min-h-touch min-w-touch;
+  }
+}

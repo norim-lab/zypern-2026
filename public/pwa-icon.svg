@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Hintergrund: Mittelmeer-Blau (Zypern-Primärfarbe) -->
+  <rect width="512" height="512" rx="96" fill="#0c7fa8" />
+  <!-- Sonne (Sand/Weiß) oben rechts -->
+  <circle cx="360" cy="150" r="70" fill="#f0dcb4" />
+  <!-- Welle (Weiß) als Wasser-Symbol -->
+  <path
+    d="M64 340 Q128 300 192 340 T320 340 T448 340 V420 H64 Z"
+    fill="#ffffff"
+    opacity="0.95" />
+  <path
+    d="M64 380 Q128 345 192 380 T320 380 T448 380 V460 H64 Z"
+    fill="#e6f3f9"
+    opacity="0.7" />
+</svg>

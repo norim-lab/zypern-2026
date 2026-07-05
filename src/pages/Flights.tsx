@@ -1,0 +1,24 @@
+// Flights.tsx — Beide Flüge (Hin & Rück) mit Live-Status.
+import { FlightCard } from '@/components/widgets/FlightCard'
+import { WarningCard } from '@/components/ui/WarningCard'
+import { outboundFlight, returnFlight } from '@/data/tripData'
+
+export function Flights() {
+  return (
+    <div className="space-y-4 p-4 pb-24">
+      <WarningCard
+        level="danger"
+        title="Bordkarten ausschließlich digital"
+        icon="🎫"
+        bullets={[
+          'Online-Check-in in der Ryanair-App erledigen.',
+          'Bordkarten auf dem Handy speichern (Offline!).',
+          'Flugnummer FR3878 an Auto Europe melden (Mietwagen-Abholung).',
+        ]}
+      />
+
+      <FlightCard flight={outboundFlight} kind="Hinflug" />
+      <FlightCard flight={returnFlight} kind="Rückflug" />
+    </div>
+  )
+}
