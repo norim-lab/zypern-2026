@@ -49,7 +49,8 @@ export function useWeather(location: WeatherLocation): UseWeatherResult {
         setLoading(false)
       }
     },
-    [location],
+    // Primitive Werte als Deps — sonst Endlos-Re-Render bei inline-Objekten.
+    [location.name, location.lat, location.lon, location.timezone],
   )
 
   // Initiale Ladung: Cache sofort anzeigen, dann aktualisieren.

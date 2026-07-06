@@ -564,11 +564,13 @@ export const bookingCodes: { label: string; code: string }[] = bookingCodesPriva
 // v0.4 — Heimatort, Märkte, Angebote, News-Themen
 // ===========================================================================
 
-/** Heimatort für das „Zuhause"-Wetter-Widget (Platzhalter Weeze). */
-export const homeLocation: { name: string; lat: number; lon: number } = {
+/** Heimatort für das „Zuhause"-Wetter-Widget (Platzhalter Weeze).
+ *  Vollständige WeatherLocation (stabile Referenz, Europe/Berlin). */
+export const homeLocation: WeatherLocation = {
   name: 'Zuhause (Weeze)',
   lat: 51.6,
   lon: 6.14,
+  timezone: 'Europe/Berlin',
 }
 
 /** Supermärkte/Märkte in Aradippou & Umgebung (Seed, erweiterbar). */

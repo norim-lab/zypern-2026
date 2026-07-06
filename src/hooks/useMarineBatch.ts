@@ -60,7 +60,10 @@ export function useMarineBatch(points: LatLng[]): UseMarineBatchResult {
         setLoading(false)
       }
     },
-    [points],
+    // Stabile String-Deps statt Array-Identität — sonst Endlos-Re-Render,
+    // weil points (inline erzeugt) bei jedem Render eine neue Identität hat.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [points.map((p) => `${p.lat},${p.lon}`).join('|')],
   )
 
   // Initiale Ladung: Cache sofort, dann aktualisieren falls stale.

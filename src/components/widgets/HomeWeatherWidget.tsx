@@ -7,13 +7,8 @@ import { homeLocation } from '@/data/tripData'
 
 export function HomeWeatherWidget() {
   const navigate = useNavigate()
-  // Heimatort-Zeitzone Europe/Berlin — eigener WeatherProvider-Aufruf.
-  const { data } = useWeather({
-    name: homeLocation.name,
-    lat: homeLocation.lat,
-    lon: homeLocation.lon,
-    timezone: 'Europe/Berlin',
-  })
+  // homeLocation ist eine stabile Modulkonstante (WeatherLocation, Europe/Berlin).
+  const { data } = useWeather(homeLocation)
 
   if (!data) {
     return (

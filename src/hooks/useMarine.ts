@@ -54,7 +54,9 @@ export function useMarine(point: LatLng): UseMarineResult {
         setLoading(false)
       }
     },
-    [point, key],
+    // Nur `key` (String) als Dep, nicht `point` (Object) — sonst Endlos-Re-Render,
+    // wenn die Aufrufstelle ein inline-Objekt übergibt (neue Identität je Render).
+    [key, point.lat, point.lon],
   )
 
   // Initiale Ladung: Cache sofort zeigen, dann aktualisieren falls stale.

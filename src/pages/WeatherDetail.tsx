@@ -17,9 +17,8 @@ export function WeatherDetail() {
   const isHome = params['*']?.includes('home') || false
 
   // Standort wählen: Aradippou (default) oder Zuhause (Europe/Berlin).
-  const location = isHome
-    ? { name: homeLocation.name, lat: homeLocation.lat, lon: homeLocation.lon, timezone: 'Europe/Berlin' as const }
-    : weatherLocations[0]
+  // Beide als stabile Modulkonstanten, sonst Endlos-Re-Render via useWeather-Effect.
+  const location = isHome ? homeLocation : weatherLocations[0]
 
   const { data: weather } = useWeather(location)
   const { data: hourly, loading, error, updatedAt, refresh } = useWeatherHourly({

@@ -49,7 +49,9 @@ export function useWeatherHourly(point: LatLng): UseWeatherHourlyResult {
         setLoading(false)
       }
     },
-    [point, key],
+    // Primitive Werte als Deps (key-String + lat/lon) — sonst Endlos-Re-Render
+    // bei inline-Point-Objekten (neue Identität je Render).
+    [key, point.lat, point.lon],
   )
 
   useEffect(() => {
