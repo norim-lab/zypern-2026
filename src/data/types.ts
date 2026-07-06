@@ -380,3 +380,79 @@ export interface ArchivedItem {
 
 /** Standort-Quellen-Info für den Standort-Chip. */
 export type LocationSource = 'live' | 'cached' | 'fallback'
+
+// ===========================================================================
+// v0.4 — Einkaufen, Restaurants, Wetter-Tagesverlauf, Zuhause-Wetter, Events+
+// ===========================================================================
+
+/** Ein Supermarkt/Märktte mit Koordinaten. */
+export interface Market {
+  id: string
+  name: string
+  lat: number
+  lon: number
+  /** Kette/Kategorie */
+  chain?: string
+  /** Maps-Such-Query für Bewertungen/Prospekt */
+  query: string
+}
+
+/** Eine Angebots-/Prospekt-Quelle (rss/link wie News/Events). */
+export interface OfferSource {
+  name: string
+  url: string
+  type: 'rss' | 'link'
+  srcKey?: string
+  /** Marktkette, zu der die Quelle gehört */
+  chain?: string
+}
+
+/** Ein geparstes Angebot (Titel, Preis, Gültigkeit, Markt). */
+export interface OfferItem {
+  title: string
+  price?: string
+  /** Gültig-bis ISO-Datum */
+  validUntil?: string
+  market: string
+  source: string
+}
+
+/** Familien-Bewertung (eigene Sterne + Notiz) — persistent via localStorage. */
+export interface FamilyRating {
+  /** 1–5 Sterne (0 = keine Bewertung) */
+  stars: number
+  /** Eigene Notiz */
+  note?: string
+}
+
+/** Ein News-Themenfilter (z. B. „Larnaka", „Touristisch"). */
+export interface NewsTopic {
+  id: string
+  label: string
+  /** Schlagwortliste, die das Thema matcht */
+  keywords: string[]
+}
+
+/** Stunden-Wetter für den Tagesverlauf. */
+export interface HourlyForecast {
+  /** ISO-Zeitpunkt der Stunde */
+  time: string
+  /** Temperatur in °C */
+  temperature: number
+  /** Gefühlte Temperatur in °C */
+  apparentTemp: number
+  /** Niederschlagswahrscheinlichkeit in % */
+  precipProb: number
+  /** UV-Index */
+  uvIndex: number
+  /** Windgeschwindigkeit in km/h */
+  windSpeed: number
+}
+
+/** Sonnenzeiten eines Tages. */
+export interface SunTimes {
+  /** Sonnenaufgang (ms) */
+  sunriseMs: number
+  /** Sonnenuntergang (ms) */
+  sunsetMs: number
+}

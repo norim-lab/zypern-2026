@@ -1,6 +1,8 @@
 // Dashboard.tsx — Startscreen: Countdown, Wetter, Flugstatus, Schnellzugriffe, To-dos.
-// v0.2: + HeatBanner (Hitze/UV) + Sonnenuntergang + Strandtasche-Schnellzugriff.
+// v0.2: HeatBanner + Sonnenuntergang + Strandtasche.
+// v0.4: + UpcomingEventsCard + HomeWeatherWidget + doppelte Zeitanzeige + goldene Stunde.
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useCountdown } from '@/hooks/useCountdown'
 import { useWeather } from '@/hooks/useWeather'
 import { useMarine } from '@/hooks/useMarine'
@@ -10,12 +12,14 @@ import { WeatherWidget } from '@/components/widgets/WeatherWidget'
 import { FlightCard } from '@/components/widgets/FlightCard'
 import { QuickActions } from '@/components/widgets/QuickActions'
 import { TodoHintCard } from '@/components/widgets/TodoHintCard'
+import { UpcomingEventsCard } from '@/components/widgets/UpcomingEventsCard'
+import { HomeWeatherWidget } from '@/components/widgets/HomeWeatherWidget'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { HeatBanner } from '@/components/discover/HeatBanner'
 import { WarningCard } from '@/components/ui/WarningCard'
 import { checklists, outboundFlight, returnFlight, accommodation, weatherLocations } from '@/data/tripData'
-import { formatSunset } from '@/lib/format'
+import { formatDualTime } from '@/lib/format'
 
 /** Wahr, wenn heute ein Reisetag ist (dann Flugkarte prominent). */
 function isTravelDay(iso: string): boolean {
@@ -38,6 +42,10 @@ export function Dashboard() {
     {},
   )
   const [bagOpen, setBagOpen] = useState(false)
+  const navigate = useNavigate()
+
+  // Sonnenuntergang als ms (für doppelte Zeitanzeige + goldene Stunde).
+  const sunsetMs = marine?.sunset ? Date.parse(marine.sunset) : 0
 
   return (
     <div className="space-y-4 p-4 pb-24">
@@ -48,14 +56,30 @@ export function Dashboard() {
 
       <Countdown target={target} value={value} />
 
-      {/* Sonnenuntergang-Hinweis (schönste Strandzeit mit Kindern ab ~16:30). */}
-      {marine?.sunset && (
-        <WarningCard level="info" title="Sonnenuntergang" icon={undefined}>
-          Heute {formatSunset(marine.sunset)} — schönste Strandzeit mit Kindern ab ca. 16:30.
-        </WarningCard>
+      {/* Sonnenuntergang + goldene Stunde — tappbar zur Wetter-Detailansicht. */}
+      {sunsetMs > 0 && (
+        <button
+          type="button"
+          onClick={() => navigate('/wetter')}
+          className="block w-full text-left"
+        >
+          <WarningCard level="info" title="Sonne" icon="🌅">
+            <p>Sonnenuntergang heute: <strong>{formatDualTime(sunsetMs)}</strong>.</p>
+            <p className="mt-0.5">
+              🌅 Goldene Stunde (Strandfotos) ab {formatDualTime(sunsetMs - 3600_000)} —
+              schönste Strandzeit mit Kindern ab ca. 16:30.
+            </p>
+          </WarningCard>
+        </button>
       )}
 
       <WeatherWidget />
+
+      {/* v0.4: Zuhause-Wetter kompakt */}
+      <HomeWeatherWidget />
+
+      {/* v0.4: Nächste Events */}
+      <UpcomingEventsCard />
 
       {/* Flugstatus am jeweiligen Reisetag prominent */}
       {showOutbound && <FlightCard flight={outboundFlight} kind="Hinflug" />}

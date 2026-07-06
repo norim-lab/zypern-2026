@@ -18,8 +18,10 @@ import { DiscoverLayout } from '@/pages/discover/DiscoverLayout'
 const Beaches = lazy(() => import('@/pages/discover/Beaches').then((m) => ({ default: m.Beaches })))
 const Excursions = lazy(() => import('@/pages/discover/Excursions').then((m) => ({ default: m.Excursions })))
 const Food = lazy(() => import('@/pages/discover/Food').then((m) => ({ default: m.Food })))
+const Shopping = lazy(() => import('@/pages/discover/Shopping').then((m) => ({ default: m.Shopping })))
 const Events = lazy(() => import('@/pages/discover/Events').then((m) => ({ default: m.Events })))
 const News = lazy(() => import('@/pages/discover/News').then((m) => ({ default: m.News })))
+const WeatherDetail = lazy(() => import('@/pages/WeatherDetail').then((m) => ({ default: m.WeatherDetail })))
 const Archive = lazy(() => import('@/pages/Archive').then((m) => ({ default: m.Archive })))
 
 // v0.3: SW-Registrierung erfolgt jetzt React-seitig via PwaUpdateBanner
@@ -45,12 +47,14 @@ const router = createBrowserRouter([
           { index: true, element: <LazyTab component={Beaches} tabName="Strände" /> },
           { path: 'ausfluege', element: <LazyTab component={Excursions} tabName="Ausflüge" /> },
           { path: 'essen', element: <LazyTab component={Food} tabName="Essen" /> },
+          { path: 'einkaufen', element: <LazyTab component={Shopping} tabName="Einkaufen" /> },
           { path: 'events', element: <LazyTab component={Events} tabName="Events" /> },
           { path: 'news', element: <LazyTab component={News} tabName="News" /> },
         ],
       },
       { path: 'listen', element: <Lists /> },
       { path: 'mehr', element: <More /> },
+      { path: 'wetter', element: <LazyTab component={WeatherDetail} tabName="Wetter" /> },
       { path: 'archiv', element: <LazyTab component={Archive} tabName="Archiv" /> },
     ],
   },

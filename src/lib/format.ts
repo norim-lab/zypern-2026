@@ -1,6 +1,7 @@
 // =============================================================================
 // format.ts — Deutsche Formatierung für Datum, Uhrzeit, Währung und Dauer.
 // =============================================================================
+import { CY_TZ, DE_TZ, timeInZone } from './timezone'
 
 const deLocale = 'de-DE'
 
@@ -78,4 +79,30 @@ export function formatSunset(iso: string): string {
 /** Km mit einer Nachkommastache DE-formatiert („12,3 km"). */
 export function formatKm(km: number): string {
   return `${km.toLocaleString(deLocale, { maximumFractionDigits: 1 })} km`
+}
+
+// v0.4 — Doppelte Zeitanzeige (Zypern groß + DE klein daneben) -------------
+// Sommerzeit-sicher über Intl.DateTimeFormat (keine hartkodierte +1 h).
+
+/** Zeit „HH:MM" in Europe/Nicosia aus einem ms-Zeitpunkt. */
+export function timeCy(ms: number): string {
+  return timeInZone(ms, CY_TZ)
+}
+
+/**
+ * Doppelte Uhrzeit aus einem ms-Zeitpunkt:
+ * „19:45 (18:45 DE)" — Zypern groß, deutsche Zeit klein daneben.
+ */
+export function formatDualTime(ms: number): string {
+  const cy = timeInZone(ms, CY_TZ)
+  const de = timeInZone(ms, DE_TZ)
+  return `${cy} (${de} DE)`
+}
+
+/** Sonne-Auf-/Untergang paar als „↑05:45 · ↓20:14" (jeweils mit DE-Klammer). */
+export function formatSunriseSunset(sunriseMs: number, sunsetMs: number): { rise: string; set: string } {
+  return {
+    rise: `↑ ${formatDualTime(sunriseMs)}`,
+    set: `↓ ${formatDualTime(sunsetMs)}`,
+  }
 }

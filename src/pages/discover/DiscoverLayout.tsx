@@ -11,6 +11,7 @@ const TABS = [
   { to: '/entdecken', label: 'Strände', icon: '🏖️', end: true },
   { to: '/entdecken/ausfluege', label: 'Ausflüge', icon: '🗺️' },
   { to: '/entdecken/essen', label: 'Essen', icon: '🍽️' },
+  { to: '/entdecken/einkaufen', label: 'Einkaufen', icon: '🛒' },
   { to: '/entdecken/events', label: 'Events', icon: '🎉' },
   { to: '/entdecken/news', label: 'News', icon: '📰' },
 ]

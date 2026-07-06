@@ -62,4 +62,10 @@ export const CACHE_KEYS = {
   news: 'zyp2026:news',
   events: 'zyp2026:events',
   geoLocation: 'zyp2026:geo-location',
+  // v0.4
+  offers: 'zyp2026:offers',
+  hourly: 'zyp2026:hourly',
 } as const
+
+/** 60 min für Angebote (v0.4). */
+export const OFFERS_TTL = HOURLY_TTL

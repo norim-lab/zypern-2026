@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Tag } from '@/components/ui/Tag'
 import { formatDate } from '@/lib/format'
 import { mapsSearch } from '@/lib/deepLinks'
+import { downloadIcs } from '@/lib/ics'
 import type { ManualEvent } from '@/data/types'
 import type { RssEvent } from '@/hooks/useEvents'
 
@@ -64,6 +65,15 @@ export function EventCard({ event, onDelete }: EventCardProps) {
           >
             Öffnen ↗
           </a>
+        )}
+        {isManual && (
+          <button
+            type="button"
+            onClick={() => downloadIcs(event as ManualEvent)}
+            className="text-xs font-medium text-zypern-blue hover:underline dark:text-sky-300"
+          >
+            📅 Zum Kalender
+          </button>
         )}
         {isManual && onDelete && (
           <button

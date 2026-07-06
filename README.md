@@ -52,19 +52,36 @@ npm run preview  # Build lokal testen
   „Heute gut"-Badge (Welle <0,5 m & Wind <25 km/h), Filter, Detailansicht mit Sonnenuntergang.
 - **🗺️ Ausflüge:** 13 Ziele mit Koordinaten, Kinder-/Schatten-Notes, Paphos als Abreisetag-Tipp.
 - **🍽️ Essen:** Kuratierte Startpunkte (keine erfundenen Namen) + Favoriten/Notizen +
-  „In der Nähe suchen"-Kacheln.
+  „In der Nähe suchen"-Kacheln + **Familien-Sterne** + **Speisekarten-Foto-Upload** (IndexedDB) +
+  Maps-Bewertungs-/Speisekarten-Buttons.
+- **🛒 Einkaufen (v0.4):** Märkte nach Entfernung + Online-Prospekte mit Translate-Buttons
+  (DE/EN via Google-Wrapper); abgelaufene Angebote → Archiv.
 - **🎉 Events:** Konfigurierte Quellen (RSS automatisch, sonst Link-Kachel) + manuell
-  erfassbare Events (Panigiria), vergangen → automatisch ins Archiv.
+  erfassbare Events (Panigiria) + **„Zum Kalender hinzufügen" (ICS-Download)**;
+  vergangen → automatisch ins Archiv.
 - **📰 News:** RSS via Proxy-Kette, Relevanz-Filter, „Für uns relevant" oben,
-  >48 h/gelesen → Archiv.
+  >48 h/gelesen → Archiv. **v0.4:** Sprach-Filter DE/EN/Alle + Themen-Filter
+  (Zypern/Larnaka/Aradippou/Touristisch); griechische Treffer → „Übersetzt öffnen".
 
 ## Module
 
-- **Wetter:** Open-Meteo (keyless), Standort umschaltbar Aradippou/Weeze.
+- **Doppelte Zeitanzeige 🇨🇾/🇩🇪 (v0.4):** zentrales `formatDualTime` — alle Uhrzeiten
+  (Sonnenauf-/untergang, Flüge, Events, Aktualisierung) zeigen Zypern-Zeit groß +
+  deutsche Zeit in Klammern. Sommerzeit-sicher via Intl.DateTimeFormat.
+- **Wetter:** Open-Meteo (keyless), Standort umschaltbar Aradippou/Weeze +
+  **Zuhause-Widget** (Heimatort konfigurierbar, default Weeze).
+- **Wetter-Detail (v0.4):** Stundenverlauf heute + morgen (Temperatur, gefühlt,
+  Niederschlag, UV, Wind), horizontal scrollbar + „Jetzt"-Markierung +
+  goldene Stunde (letzte Stunde vor Sonnenuntergang).
 - **Marine (Strände):** Open-Meteo Marine als **Batch-Provider** — alle Strände
   in EINEM Request (statt 13 Einzel-Calls), 60 min Cache + manueller Refresh.
 - **Flugstatus:** `ScheduledTimeProvider` (Planzeiten + Flightradar24-/Ryanair-Buttons);
   `OpenSkyProvider` als Stub für späteren Key-Betrieb vorbereitet.
+- **Restaurants (v0.4):** Default = Maps-Buttons + Familien-Sterne + Foto-Upload +
+  Link-Feld. Mit `VITE_PLACES_API_KEY` aktiviert sich `PlacesRestaurantProvider`
+  automatisch (Rating, „jetzt geöffnet", Preisniveau).
+- **Übersetzung (v0.4):** Default = Originaltext + Google-Translate-Wrapper-Links;
+  optional LibreTranslate-/DeepL-Instanz via `VITE_TRANSLATE_API_*`.
 - **News/Events:** zentrale **Proxy-Kette** (siehe Deployment) — eigene
   Serverless-Function → allorigins-Fallback → Link-Kachel. Nie leerer Screen.
 - **Refresh:** zentraler `RefreshScheduler` (statt verstreuter `setInterval`):

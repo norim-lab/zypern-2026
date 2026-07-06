@@ -18,6 +18,9 @@ import type {
   LocalSearchTile,
   EventSource,
   NewsSource,
+  Market,
+  OfferSource,
+  NewsTopic,
 } from './types'
 // v0.3: Personenbezogene Werte sind in privateData.ts gekapselt und werden hier
 // nur referenziert. So lassen sie sich zentral pflegen und für Demos maskieren
@@ -437,10 +440,20 @@ export const eventSources: EventSource[] = [
 
 // Nachrichten (v0.2) -------------------------------------------------------
 
-/** Konfigurierte News-Quellen. */
+/** Konfigurierte News-Quellen (v0.4: + deutsche Google-News-RSS-Queries). */
 export const newsSources: NewsSource[] = [
   { name: 'Cyprus Mail', url: 'https://cyprus-mail.com/feed/', type: 'rss', srcKey: 'cyprus-mail' },
   { name: 'In-Cyprus (Philenews)', url: 'https://in-cyprus.philenews.com/feed/', type: 'rss', srcKey: 'incyprus' },
+  {
+    name: 'Google News DE — Zypern/Larnaka/Aradippou',
+    url: 'https://news.google.com/rss/search?q=Zypern+OR+Larnaka+OR+Aradippou&hl=de&gl=DE&ceid=DE:de',
+    type: 'rss', srcKey: 'gnews-de-zypern',
+  },
+  {
+    name: 'Google News DE — Zypern Tourismus/Urlaub',
+    url: 'https://news.google.com/rss/search?q=Zypern+Tourismus+OR+Urlaub&hl=de&gl=DE&ceid=DE:de',
+    type: 'rss', srcKey: 'gnews-de-tourismus',
+  },
 ]
 
 /** Link-Kacheln (kein RSS, nur externe Quellen). */
@@ -546,3 +559,53 @@ export const emergency: EmergencyInfo = {
 
 /** Buchungscodes als Schnellzugriff (für Dashboard). Codes aus privateData. */
 export const bookingCodes: { label: string; code: string }[] = bookingCodesPrivate
+
+// ===========================================================================
+// v0.4 — Heimatort, Märkte, Angebote, News-Themen
+// ===========================================================================
+
+/** Heimatort für das „Zuhause"-Wetter-Widget (Platzhalter Weeze). */
+export const homeLocation: { name: string; lat: number; lon: number } = {
+  name: 'Zuhause (Weeze)',
+  lat: 51.6,
+  lon: 6.14,
+}
+
+/** Supermärkte/Märkte in Aradippou & Umgebung (Seed, erweiterbar). */
+export const markets: Market[] = [
+  { id: 'm-mas', name: 'MAS Alambritis', lat: 34.951, lon: 33.588, chain: 'MAS',
+    query: 'MAS Alambritis Aradippou' },
+  { id: 'm-euroasia', name: 'Euro&Asia Food MiniMarket', lat: 34.951, lon: 33.59,
+    chain: 'Mini Market', query: 'Euro Asia Food MiniMarket Aradippou' },
+  { id: 'm-alphamega', name: 'Alphamega Hypermarket', lat: 34.924, lon: 33.627,
+    chain: 'Alphamega', query: 'Alphamega Hypermarket Larnaca' },
+  { id: 'm-lidl', name: 'Lidl', lat: 34.923, lon: 33.627,
+    chain: 'Lidl', query: 'Lidl Larnaca Aradippou' },
+  { id: 'm-sklavenitis', name: 'Sklavenitis', lat: 34.918, lon: 33.636,
+    chain: 'Sklavenitis', query: 'Sklavenitis Larnaca' },
+  { id: 'm-metro', name: 'Metro', lat: 34.931, lon: 33.622,
+    chain: 'Metro', query: 'Metro Cash Carry Larnaca' },
+]
+
+/** Online-Prospekt-/Angebots-Quellen. 'link' = nur Kachel (Prospekt öffnen). */
+export const offerSources: OfferSource[] = [
+  { name: 'Lidl Zypern Wochenangebote', url: 'https://www.lidl.com.cy/angebote',
+    type: 'link', srcKey: 'lidl-cy', chain: 'Lidl' },
+  { name: 'Alphamega Offers', url: 'https://www.alphamega.com.cy/offers',
+    type: 'link', srcKey: 'alphamega', chain: 'Alphamega' },
+  { name: 'Sklavenitis Fylladio', url: 'https://www.sklavenitis.com.cy/offers',
+    type: 'link', srcKey: 'sklavenitis', chain: 'Sklavenitis' },
+]
+
+/** News-Themenfilter (kombinierbar mit Sprach-Filter). */
+export const newsTopics: NewsTopic[] = [
+  { id: 'cy', label: 'Zypern', keywords: ['cyprus', 'zypern', 'nicosia', 'nikosia'] },
+  { id: 'larnaka', label: 'Larnaka', keywords: ['larnaca', 'larnaka', 'larnarka'] },
+  { id: 'aradippou', label: 'Aradippou', keywords: ['aradippou', 'aradippos'] },
+  {
+    id: 'tourismus',
+    label: 'Touristisch',
+    keywords: ['beach', 'strand', 'hotel', 'flight', 'flug', 'attraction',
+      'sehenswürdigkeit', 'price', 'preis', 'tourist', 'tourism', 'urlaub'],
+  },
+]
