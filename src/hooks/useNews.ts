@@ -4,7 +4,7 @@
 //   - Relevanz-Filter: Meldungen mit Schlagwort-Treffer oben („Für uns relevant").
 //   - Älter als 48 h oder gelesen → ins Archiv.
 // =============================================================================
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { newsProvider } from '@/providers'
 import type { NewsResult } from '@/providers'
 import type { FeedItem } from '@/lib/rss'
@@ -34,6 +34,11 @@ export function useNews(): UseNewsResult {
   const [updatedAt, setUpdatedAt] = useState<number | null>(null)
   const archive = useArchive()
 
+  // v0.5.1 Fix: archive als Ref — neue Object-Identität je Render würde load
+  // verändern und Endlos-Re-Render auslösen.
+  const archiveRef = useRef(archive)
+  archiveRef.current = archive
+
   const load = useCallback(
     async (silent = false) => {
       if (!silent) setLoading(true)
@@ -56,7 +61,7 @@ export function useNews(): UseNewsResult {
             originalDate: i.pubDateMs ?? undefined,
             payload: i.source,
           }))
-        if (toArchive.length > 0) void archive.addMany(toArchive)
+        if (toArchive.length > 0) void archiveRef.current.addMany(toArchive)
       } catch (err) {
         const cached = readCache<NewsResult>(CACHE_KEYS.news)
         if (cached) {
@@ -70,7 +75,7 @@ export function useNews(): UseNewsResult {
         setLoading(false)
       }
     },
-    [archive],
+    [],
   )
 
   // Initiale Ladung.
@@ -98,7 +103,7 @@ export function useNews(): UseNewsResult {
 
   const markRead = useCallback(
     (item: FeedItem) => {
-      void archive.add({
+      void archiveRef.current.add({
         id: `news-${item.pubDateMs ?? Date.now()}-${item.link}`,
         kind: 'news',
         title: item.title,
@@ -108,7 +113,7 @@ export function useNews(): UseNewsResult {
         payload: item.source,
       })
     },
-    [archive],
+    [],
   )
 
   // Relevanz-Split (memoisiert).

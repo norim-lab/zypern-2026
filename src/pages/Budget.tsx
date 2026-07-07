@@ -14,25 +14,27 @@ export function Budget() {
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState<BudgetCategory>('Essen')
   const [note, setNote] = useState('')
+  const [receiptPhoto, setReceiptPhoto] = useState<string | undefined>(undefined)
+  const [viewPhoto, setViewPhoto] = useState<string | null>(null)
 
   async function submit() {
     const amt = parseFloat(amount.replace(',', '.'))
     if (!isNaN(amt) && amt > 0) {
-      await add({ amount: amt, category, note: note.trim() || undefined, date: new Date().toISOString() })
-      setAmount(''); setNote('')
+      await add({
+        amount: amt, category,
+        note: note.trim() || undefined,
+        receiptPhoto,
+        date: new Date().toISOString(),
+      })
+      setAmount(''); setNote(''); setReceiptPhoto(undefined)
     }
   }
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        // Foto an letzten Eintrag anhängen (als Beleg).
-        // Für Einfachheit: als base64 im note markieren.
-        setNote((prev) => prev + ' 📸Beleg')
-      }
-      reader.readAsDataURL(file)
+      const dataUrl = await resizeImage(file, 1280)
+      setReceiptPhoto(dataUrl)
       e.target.value = ''
     }
   }
@@ -84,6 +86,14 @@ export function Budget() {
             placeholder="Notiz (optional)"
             className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-700"
           />
+          {/* Foto-Vorschau vor dem Speichern */}
+          {receiptPhoto && (
+            <div className="flex items-center gap-2">
+              {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
+              <img src={receiptPhoto} alt="Beleg-Vorschau" className="h-16 w-16 rounded-lg object-cover" />
+              <button type="button" onClick={() => setReceiptPhoto(undefined)} className="text-xs text-slate-400 hover:text-danger">✕ entfernen</button>
+            </div>
+          )}
           <div className="flex gap-2">
             <Button variant="primary" onClick={submit} className="flex-1">Speichern</Button>
             <label className="flex cursor-pointer items-center justify-center rounded-2xl bg-zypern-blue-light px-4 text-sm text-zypern-blue-dark dark:bg-slate-700 dark:text-sky-200">
@@ -116,11 +126,20 @@ export function Budget() {
           <ul className="space-y-1">
             {entries.map((e) => (
               <li key={e.id} className="flex items-center justify-between border-b border-slate-100 py-1.5 last:border-0 dark:border-slate-700">
-                <div>
-                  <span className="text-sm font-medium">{formatEur(e.amount)}</span>
-                  <span className="ml-2 text-xs text-slate-500">{e.category}</span>
-                  {e.note && <p className="text-[11px] text-slate-400">{e.note}</p>}
-                  <p className="text-[10px] text-slate-400">{new Date(e.date).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                <div className="flex items-start gap-2">
+                  {/* Thumbnail (Tap = groß) */}
+                  {e.receiptPhoto && (
+                    <button onClick={() => setViewPhoto(e.receiptPhoto!)} className="shrink-0">
+                      {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
+                      <img src={e.receiptPhoto} alt="Beleg" className="h-12 w-12 rounded-lg object-cover" />
+                    </button>
+                  )}
+                  <div>
+                    <span className="text-sm font-medium">{formatEur(e.amount)}</span>
+                    <span className="ml-2 text-xs text-slate-500">{e.category}</span>
+                    {e.note && <p className="text-[11px] text-slate-400">{e.note}</p>}
+                    <p className="text-[10px] text-slate-400">{new Date(e.date).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -140,6 +159,38 @@ export function Budget() {
           </Button>
         )}
       </Card>
+
+      {/* Vollbild-Belegfoto */}
+      {viewPhoto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setViewPhoto(null)}>
+          {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
+          <img src={viewPhoto} alt="Beleg (groß)" className="max-h-[90vh] max-w-[90vw] rounded-lg" />
+        </div>
+      )}
     </div>
   )
+}
+
+/** Verkleinert ein Bild auf maxWidth via Canvas; liefert dataURL (JPEG). */
+async function resizeImage(file: File, maxWidth: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width)
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width * scale
+        canvas.height = img.height * scale
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return reject(new Error('Canvas nicht verfügbar'))
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve(canvas.toDataURL('image/jpeg', 0.8))
+      }
+      img.onerror = reject
+      img.src = reader.result as string
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }

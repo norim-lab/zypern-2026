@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card'
 import { WeatherIcon } from '@/components/ui/WeatherIcon'
 import { HourlyForecast } from '@/components/discover/HourlyForecast'
 import { formatDualTime } from '@/lib/format'
+import { CY_TZ } from '@/lib/timezone'
 import type { HourlyForecast as HourlyPoint, SunTimes } from '@/data/types'
 import type { CurrentWeather } from '@/providers'
 
@@ -16,11 +17,20 @@ export interface DayWeatherCardProps {
 }
 
 export function DayWeatherCard({ current, hourly, sun, tempMin, tempMax }: DayWeatherCardProps) {
-  // UV-Spitze + Uhrzeit.
-  const todayHours = hourly.filter((h) => {
-    const d = new Date(h.time)
-    return d.getDate() === new Date().getDate() && d.getMonth() === new Date().getMonth()
-  })
+  // „Heute"-Filterung nach Datum in Asia/Nicosia (nicht Geräte-Lokalzeit!).
+  const cyDateStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: CY_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date())
+  const todayHours = hourly.filter((h) => h.time.startsWith(cyDateStr))
+
+  // Aktuelle Stunde = die „jetzt" am nächsten liegende Stunde.
+  const nowMs = Date.now()
+  const currentHour = todayHours.length > 0
+    ? todayHours.reduce((best, h) =>
+        Math.abs(new Date(h.time).getTime() - nowMs) < Math.abs(new Date(best.time).getTime() - nowMs) ? h : best,
+      todayHours[0])
+    : null
+
   const uvPeak = todayHours.length > 0
     ? todayHours.reduce((max, h) => (h.uvIndex > max.uvIndex ? h : max), todayHours[0])
     : null
@@ -35,7 +45,7 @@ export function DayWeatherCard({ current, hourly, sun, tempMin, tempMax }: DayWe
             {Math.round(current.temperature)}°C
           </div>
           <div className="text-xs text-slate-500 dark:text-slate-400">
-            gefühlt {Math.round(todayHours[0]?.apparentTemp ?? current.temperature)}°C · 💨 {Math.round(current.windSpeed)} km/h
+            gefühlt {Math.round(currentHour?.apparentTemp ?? current.temperature)}°C · 💨 {Math.round(current.windSpeed)} km/h
           </div>
         </div>
         <WeatherIcon code={current.weatherCode} />
@@ -46,7 +56,7 @@ export function DayWeatherCard({ current, hourly, sun, tempMin, tempMax }: DayWe
         <span>📊 {Math.round(tempMin)}° / {Math.round(tempMax)}°</span>
         {uvPeak && uvPeak.uvIndex >= 6 && (
           <span className="font-medium text-warn dark:text-amber-300">
-            UV {Math.round(uvPeak.uvIndex)} um {new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Nicosia' }).format(uvPeakTime)}
+            UV {Math.round(uvPeak.uvIndex)} um {new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: CY_TZ }).format(uvPeakTime)}
           </span>
         )}
       </div>

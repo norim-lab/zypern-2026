@@ -630,7 +630,9 @@ export const seedEvents: ManualEvent[] = [
     title: 'Wochenmarkt Larnaca Agora',
     date: '2026-07-18',
     locationName: 'Larnaca Agora',
-    note: 'Jeden Samstagvormittag — frisches Obst, Gemüse, locale Spezialitäten.',
+    note: 'Jeden Samstagvormittag — frisches Obst, Gemüse, lokale Spezialitäten.',
     url: 'https://www.google.com/maps/search/?api=1&query=Larnaca+Agora+Market',
+    recurring: 'weekly',
+    recurringDay: 6, // Samstag
   },
 ]

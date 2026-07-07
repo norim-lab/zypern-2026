@@ -1,8 +1,8 @@
 // =============================================================================
 // FuelPriceProvider.ts — Tankpreis-Vergleich (v0.5 §4).
-// Link-Kacheln + optionales HTML-Parsen (falls Quelle maschinenlesbar).
+// v0.5.1 Fix #9: nur Link-Kacheln, kein HTML-Parsen mehr (nichts erfinden).
+// Provider-Interface für spätere echte Datenquelle beibehalten.
 // =============================================================================
-import { fetchViaProxy } from '@/lib/proxyChain'
 
 export interface FuelStation {
   name: string
@@ -21,22 +21,12 @@ export class CyprusFuelPriceProvider implements FuelPriceProvider {
   readonly name = 'Cyprus Fuel Guide'
 
   async fetchNearby() {
-    // cyprusfuelguide.com ist JS-basiert → nur Link-Kacheln, kein Parsen.
-    // Echtes Parsen würde eine maschinenlesbare Quelle (gov.cy API) brauchen.
+    // v0.5.1 Fix #9: KEIN HTML-Parsen mehr (JS-gerenderte Seiten liefern
+    // unzuverlässige/erfundene Daten). Nur Link-Kacheln — Regel: nichts erfinden.
     const linkSources = [
-      { label: 'Retail Fuel Price Observatory (gov.cy)', url: 'https://www.gov.cy/fuelprices' },
+      { label: 'Retail Fuel Price Observatory (gov.cy)', url: 'https://www.gov.cy/en/service/retail-fuel-price-observatory/' },
       { label: 'cyprusfuelguide.com', url: 'https://cyprusfuelguide.com/' },
     ]
-    // Versuch, cyprusfuelguide via Proxy zu laden (falls strukturiert).
-    const html = await fetchViaProxy('cyprusfuelguide', 'https://cyprusfuelguide.com/')
-    const stations: FuelStation[] = []
-    if (html) {
-      // Preis-Muster: „95: €1.234" oder „1.234 €/L".
-      const priceMatches = Array.from(html.matchAll(/(\d\.\d{3})\s*(?:€|EUR)?/g)).slice(0, 3)
-      priceMatches.forEach((m) => {
-        stations.push({ name: 'Tankstelle (Name in Maps prüfen)', price95: `${m[1]} €` })
-      })
-    }
-    return { stations, linkSources }
+    return { stations: [], linkSources }
   }
 }

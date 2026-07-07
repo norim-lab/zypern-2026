@@ -48,7 +48,7 @@ export const phrasebook: PhraseGroup[] = [
     phrases: [
       { de: '1 / 2 / 3', el: 'ένα / δύο / τρία', pron: 'E-na / DI-o / TRI-a' },
       { de: '4 / 5 / 6', el: 'τέσσερα / πέντε / έξι', pron: 'TE-se-ra / PEN-de / E-xi' },
-      { de: '7 / 8 / 9', el: 'επτά / οκτώ / εννέα', pron: 'ep-TA / ok-TO' },
+      { de: '7 / 8 / 9', el: 'επτά / οκτώ / εννέα', pron: 'ep-TA / ok-TO / e-NE-a' },
       { de: '10', el: 'δέκα', pron: 'DE-ka' },
     ],
   },
@@ -67,8 +67,8 @@ export const phrasebook: PhraseGroup[] = [
     icon: '🧒',
     phrases: [
       { de: 'Wo ist ein Spielplatz?', el: 'Πού είναι μια παιδική χαρά;', pron: 'Pu I-ne mi-a pedi-KI cha-RA' },
-      { de: 'Habt du einen Kinderwagen?', el: 'Έχετε καρότσι;', pron: 'E-CHETE ka-RO-tsi' },
-      { de: 'Ist das kindergerecht?', el: 'Είναι κατάλληλο για παιδιά;', pron: 'I-ne ka-TIL-lo ja pe-DIA' },
+      { de: 'Habt ihr einen Kinderwagen?', el: 'Έχετε καρότσι;', pron: 'E-CHETE ka-RO-tsi' },
+      { de: 'Ist das kindergerecht?', el: 'Είναι κατάλληλο για παιδιά;', pron: 'I-ne ka-TA-li-lo ja pe-DIA' },
     ],
   },
 ]

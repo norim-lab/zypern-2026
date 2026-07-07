@@ -21,10 +21,12 @@ export interface OpeningGuess {
  * Schätzt den Öffnungsstatus anhand der Zypern-Regeln.
  * now in Europe/Nicosia (während Reise) oder Europe/Berlin (davor/danach).
  */
+import { CY_TZ } from './timezone'
+
 export function guessOpen(category: PlaceCategory, now: Date = new Date()): OpeningGuess {
   // Zypern-Zeit (Sommer EEST = UTC+3).
   const cyTime = new Intl.DateTimeFormat('en-GB', {
-    hour: '2-digit', hour12: false, timeZone: 'Europe/Nicosia', weekday: 'short',
+    hour: '2-digit', hour12: false, timeZone: CY_TZ, weekday: 'short',
   }).formatToParts(now)
   const hourStr = cyTime.find((p) => p.type === 'hour')?.value ?? '0'
   const weekday = cyTime.find((p) => p.type === 'weekday')?.value ?? ''

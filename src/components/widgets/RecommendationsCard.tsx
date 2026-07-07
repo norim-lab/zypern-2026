@@ -1,26 +1,31 @@
 // RecommendationsCard.tsx — „Was machen wir heute?" (v0.5 §10).
-// Nutzt recommendations.ts (reine Logik) + zeigt 3 Vorschläge als Karten.
+// v0.5.1 Fix #6: echte Distanzen via useDistance (stabile Referenzen!).
 import { Card } from '@/components/ui/Card'
 import { recommend } from '@/lib/recommendations'
 import { useWeather } from '@/hooks/useWeather'
 import { useWeatherHourly } from '@/hooks/useWeatherHourly'
 import { useEvents } from '@/hooks/useEvents'
 import { useMarineBatch } from '@/hooks/useMarineBatch'
+import { useDistance } from '@/hooks/useDistance'
 import { beaches, accommodation, weatherLocations } from '@/data/tripData'
 import type { ManualEvent } from '@/data/types'
 
+const ACCOMMODATION_POINT = { lat: accommodation.lat, lon: accommodation.lon }
+const BEACH_POINTS = beaches.map((b) => ({ lat: b.lat, lon: b.lon }))
+
 export function RecommendationsCard() {
   const { data: weather } = useWeather(weatherLocations[0])
-  const { data: hourlyData } = useWeatherHourly({ lat: accommodation.lat, lon: accommodation.lon })
+  const { data: hourlyData } = useWeatherHourly(ACCOMMODATION_POINT)
   const { upcoming } = useEvents()
-  const points = beaches.map((b) => ({ lat: b.lat, lon: b.lon }))
-  const { data: marineData } = useMarineBatch(points)
+  // Fallback Damian Home — useGeolocation würde neue Object-Identität → Render-Loop.
+  const sortedBeaches = useDistance(beaches, ACCOMMODATION_POINT)
+  const { data: marineData } = useMarineBatch(BEACH_POINTS)
 
-  // Strände mit Marine-Daten anreichern (für Wellen/Wind-Logik).
-  const beachInput = beaches.map((b) => {
-    const conds = marineData.get(`${b.lat.toFixed(3)},${b.lon.toFixed(3)}`)
+  // Strände mit Marine-Daten + echter Distanz anreichern.
+  const beachInput = sortedBeaches.map((b) => {
+    const conds = marineData.get(`${b.item.lat.toFixed(3)},${b.item.lon.toFixed(3)}`)
     return {
-      beach: { item: b, km: 0, driveMin: 0 }, // km/driveMin hier vereinfacht
+      beach: b, // WithDistance<Beach> mit echten km/driveMin
       waveHeight: conds?.waveHeight,
       windSpeed: conds?.windSpeed,
     }

@@ -19,7 +19,7 @@ export function EarthquakeCard({ quakes }: { quakes: Earthquake[] }) {
         </span>
       </div>
       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-        {strongest.place} · Tiefe {strongest.depth.toFixed(0)} km ·{' '}
+        {strongest.place} · ~{strongest.distanceKm} km entfernt · Tiefe {strongest.depth.toFixed(0)} km ·{' '}
         {formatDualTime(strongest.timeMs)}
       </p>
       <p className="mt-1 text-[11px] text-slate-400">

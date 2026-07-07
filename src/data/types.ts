@@ -337,6 +337,10 @@ export interface ManualEvent {
   note?: string
   /** Maps-/Quell-Link */
   url?: string
+  /** v0.5.1: wiederkehrendes Event (z. B. Wochenmarkt jeden Samstag). */
+  recurring?: 'weekly'
+  /** Bei recurring='weekly': Wochentag 0=So … 6=Sa. */
+  recurringDay?: number
 }
 
 /** Eine Event-Quelle (RSS = maschinenlesbar, link = externe Kachel). */

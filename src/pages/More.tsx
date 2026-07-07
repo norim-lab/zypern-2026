@@ -117,6 +117,8 @@ export function More() {
           Diese Funktionen sind noch nicht aktiv — nur vorbereitet.
         </p>
       </Card>
+
+      <p className="text-center text-[11px] text-slate-400">Zypern 2026 · v0.5.1</p>
     </div>
   )
 }

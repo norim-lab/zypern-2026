@@ -5,6 +5,7 @@
 // =============================================================================
 import type { HourlyForecast, Beach, ManualEvent } from '@/data/types'
 import type { WithDistance } from '@/hooks/useDistance'
+import { CY_TZ } from './timezone'
 
 export interface Recommendation {
   icon: string
@@ -33,7 +34,7 @@ export interface RecommendationInput {
 export function recommend(input: RecommendationInput): Recommendation[] {
   const now = input.now ?? new Date()
   const out: Recommendation[] = []
-  const day = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: 'Europe/Nicosia' }).format(now).toLowerCase()
+  const day = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: CY_TZ }).format(now).toLowerCase()
   const tempMax = input.tempMax
   const hourly = input.hourly ?? []
 
@@ -72,7 +73,7 @@ export function recommend(input: RecommendationInput): Recommendation[] {
     out.push({
       icon: '🛍️',
       title: 'Wochenmarkt Larnaca Agora',
-      detail: 'Samstagvormittag — frisches Obst, Gemüse, locale Spezialitäten. Früh da sein!',
+      detail: 'Samstagvormittag — frisches Obst, Gemüse, lokale Spezialitäten. Früh da sein!',
       url: 'https://www.google.com/maps/search/?api=1&query=Larnaca+Agora+Market',
     })
   }

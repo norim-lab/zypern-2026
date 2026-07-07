@@ -28,6 +28,10 @@ const SOURCES = {
   'onduty-larnaca': 'https://cyprus.ondutypharmacy.com/larnaca/',
   // Tankpreise (v0.5)
   'cyprusfuelguide': 'https://cyprusfuelguide.com/',
+  // Angebote (v0.4 — wiederhergestellt v0.5.1 Fix #2)
+  'lidl-cy': 'https://www.lidl.com.cy/angebote',
+  alphamega: 'https://www.alphamega.com.cy/offers',
+  sklavenitis: 'https://www.sklavenitis.com.cy/offers',
 }
 
 /** In-Memory-Cache: srcKey → { text, expiry }. Überlebt warme Function-Instanzen. */

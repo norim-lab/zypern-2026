@@ -3,11 +3,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { startRefreshScheduler } from '@/lib/refreshScheduler'
-import { useSeedEvents } from '@/hooks/useSeedEvents'
+import { injectSeedEvents } from '@/lib/seedEvents'
 import './index.css'
 
 // Event-Seeds (Larnaka Festival, Wochenmarkt) einmalig einspielen (v0.5 §6).
-useSeedEvents()
+// v0.5.1 Fix: reine Funktion statt Hook — kein „Invalid hook call" mehr.
+injectSeedEvents()
 import App from './App.tsx'
 import { lazy } from 'react'
 import { LazyTab } from '@/components/layout/LazyTab'

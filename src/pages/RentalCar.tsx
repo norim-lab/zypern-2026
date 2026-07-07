@@ -93,7 +93,7 @@ export function RentalCar() {
           Preisunterschiede bis 17–23 Cent/Liter — lohnt sich!
         </p>
         <div className="grid grid-cols-1 gap-2">
-          <Button href="https://www.gov.cy/fuelprices" external variant="secondary" icon="🏛️" className="text-xs">
+          <Button href="https://www.gov.cy/en/service/retail-fuel-price-observatory/" external variant="secondary" icon="🏛️" className="text-xs">
             Retail Fuel Price Observatory (gov.cy)
           </Button>
           <Button href="https://cyprusfuelguide.com/" external variant="secondary" icon="⛽" className="text-xs">

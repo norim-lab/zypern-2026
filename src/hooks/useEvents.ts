@@ -5,7 +5,7 @@
 //   - Vergangene Events → automatisch ins Archiv.
 //   - 'link'-Quellen werden als Link-Kacheln gezeigt (nichts erfinden).
 // =============================================================================
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { eventsProvider } from '@/providers'
 import type { EventsResult } from '@/providers'
 import type { ManualEvent, EventSource } from '@/data/types'
@@ -107,12 +107,17 @@ export function useEvents(): UseEventsResult {
     [setManualEvents],
   )
 
-  // Vergangene manuelle Events ins Archiv verschieben.
+  // Vergangene manuelle Events ins Archiv verschieben — ABER recurring Events
+  // behalten. v0.5.1 Fix: `archive` NICHT in Deps (neue Identität je Render → Loop).
+  const archiveRef = useRef(archive)
+  archiveRef.current = archive
   useEffect(() => {
     const now = Date.now()
-    const past = manualEvents.filter((e) => new Date(e.date).getTime() + 86400000 < now)
+    const past = manualEvents.filter(
+      (e) => !e.recurring && new Date(e.date).getTime() + 86400000 < now,
+    )
     if (past.length > 0) {
-      void archive.addMany(
+      void archiveRef.current.addMany(
         past.map((e) => ({
           id: `event-${e.id}`,
           kind: 'event' as const,
@@ -125,14 +130,20 @@ export function useEvents(): UseEventsResult {
       )
       setManualEvents((prev) => prev.filter((p) => !past.some((pa) => pa.id === p.id)))
     }
-  }, [manualEvents, archive, setManualEvents])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [manualEvents, setManualEvents])
 
-  // Kombiniere + sortiere (nächste zuerst).
+  // Kombiniere + sortiere (nächste zuerst). Recurring Events → nächstes Vorkommnis.
   const upcoming = useMemo(() => {
     const rss = (result?.items ?? []).map(toRssEvent)
-    const manual: (ManualEvent | RssEvent)[] = manualEvents.map((m) => ({ kind: 'manual' as const, ...m }))
+    const manual: (ManualEvent | RssEvent)[] = manualEvents.map((m) => {
+      if (m.recurring === 'weekly' && m.recurringDay !== undefined) {
+        const nextDate = nextWeeklyOccurrence(m.recurringDay)
+        return { kind: 'manual' as const, ...m, date: nextDate }
+      }
+      return { kind: 'manual' as const, ...m }
+    })
     const combined: (ManualEvent | RssEvent)[] = [...manual, ...rss]
-    // Sortierschlüssel: Datum (RSS ohne Datum ans Ende).
     return combined.sort((a, b) => {
       const aMs = 'date' in a ? new Date(a.date).getTime() : a.dateMs ?? Number.MAX_SAFE_INTEGER
       const bMs = 'date' in b ? new Date(b.date).getTime() : b.dateMs ?? Number.MAX_SAFE_INTEGER
@@ -151,3 +162,23 @@ export function useEvents(): UseEventsResult {
     removeManual,
   }
 }
+
+/**
+ * Liefert das nächste Datum (ISO YYYY-MM-DD) des Wochentags `day` (0=So … 6=Sa),
+ * das innerhalb des Reisezeitraums (17.07.–07.08.2026) liegt — ab heute gerechnet.
+ */
+function nextWeeklyOccurrence(day: number): string {
+  const now = new Date()
+  const tripEnd = new Date('2026-08-08')
+  // Vom heutigen Tag ausgehend den nächsten Ziel-Tag finden.
+  const result = new Date(now)
+  let diff = (day - now.getDay() + 7) % 7
+  if (diff === 0 && now.getHours() >= 12) diff = 7 // heute schon Mittag → nächste Woche
+  result.setDate(result.getDate() + diff)
+  // Falls über das Reiseende hinaus: am ersten Samstag der Reise festmachen.
+  if (result > tripEnd) {
+    result.setTime(new Date('2026-07-18').getTime()) // fallback: erster Samstag
+  }
+  return result.toISOString().slice(0, 10)
+}
+

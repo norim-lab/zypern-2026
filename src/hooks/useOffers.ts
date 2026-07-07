@@ -2,7 +2,7 @@
 // useOffers.ts — Angebote/Prospekte (v0.4).
 // Stündlich + bei Fokus + manuell. Abgelaufene Angebote → Archiv.
 // =============================================================================
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { offersProvider } from '@/providers'
 import type { OffersResult } from '@/providers'
 import type { OfferItem, OfferSource } from '@/data/types'
@@ -26,6 +26,9 @@ export function useOffers(): UseOffersResult {
   const [error, setError] = useState<string | null>(null)
   const [updatedAt, setUpdatedAt] = useState<number | null>(null)
   const archive = useArchive()
+  // v0.5.1 Fix: archive als Ref — neue Identität je Render würde load verändern → Loop.
+  const archiveRef = useRef(archive)
+  archiveRef.current = archive
 
   const load = useCallback(
     async (silent = false) => {
@@ -36,7 +39,6 @@ export function useOffers(): UseOffersResult {
         setResult(res)
         const ts = writeCache(CACHE_KEYS.offers, res)
         setUpdatedAt(ts)
-        // Abgelaufene Angebote archivieren.
         const now = Date.now()
         const expired = res.items
           .filter((i) => i.validUntil && new Date(i.validUntil).getTime() < now)
@@ -47,7 +49,7 @@ export function useOffers(): UseOffersResult {
             archivedAt: now,
             payload: i.price,
           }))
-        if (expired.length > 0) void archive.addMany(expired)
+        if (expired.length > 0) void archiveRef.current.addMany(expired)
       } catch (err) {
         const cached = readCache<OffersResult>(CACHE_KEYS.offers)
         if (cached) {
@@ -61,7 +63,7 @@ export function useOffers(): UseOffersResult {
         setLoading(false)
       }
     },
-    [archive],
+    [],
   )
 
   useEffect(() => {

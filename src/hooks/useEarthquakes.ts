@@ -5,7 +5,6 @@ import { earthquakeProvider } from '@/providers'
 import type { Earthquake } from '@/providers/EarthquakeProvider'
 import { HOURLY_TTL, CACHE_KEYS, isCacheStale, readCache, writeCache } from '@/lib/cache'
 import { useRefreshTask } from './useRefreshTask'
-import { haversineKm } from '@/lib/geo'
 import type { LatLng } from '@/lib/geo'
 
 export function useEarthquakes(point: LatLng) {
@@ -17,11 +16,9 @@ export function useEarthquakes(point: LatLng) {
     if (!silent) setLoading(true)
     try {
       const result = await earthquakeProvider.fetchNearby(point, 4, 3)
-      // Entfernung ergänzen + nur letzte 24 h.
+      // Nur Beben der letzten 24 h; Entfernung wird vom Provider berechnet.
       const now = Date.now()
-      const recent = result
-        .map((q) => ({ ...q, distanceKm: haversineKm(point, { lat: point.lat, lon: point.lon }) }))
-        .filter((q) => now - q.timeMs < 24 * 3600_000)
+      const recent = result.filter((q) => now - q.timeMs < 24 * 3600_000)
       setQuakes(recent); setUpdatedAt(writeCache(CACHE_KEYS.earthquakes, recent))
     } catch { /* dezent: bei Fehler nichts anzeigen */ }
     finally { setLoading(false) }
