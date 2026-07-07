@@ -45,6 +45,13 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
+        // App-Shortcuts (Android Long-Press, v0.5 §14).
+        shortcuts: [
+          { name: 'Flüge', url: '/fluege', icons: [{ src: '/pwa-icon-192.png', sizes: '192x192' }] },
+          { name: 'Strände', url: '/entdecken', icons: [{ src: '/pwa-icon-192.png', sizes: '192x192' }] },
+          { name: 'Einkaufen', url: '/entdecken/einkaufen', icons: [{ src: '/pwa-icon-192.png', sizes: '192x192' }] },
+          { name: 'Notfall', url: '/mehr', icons: [{ src: '/pwa-icon-192.png', sizes: '192x192' }] },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],

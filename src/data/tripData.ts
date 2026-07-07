@@ -21,6 +21,7 @@ import type {
   Market,
   OfferSource,
   NewsTopic,
+  ManualEvent,
 } from './types'
 // v0.3: Personenbezogene Werte sind in privateData.ts gekapselt und werden hier
 // nur referenziert. So lassen sie sich zentral pflegen und für Demos maskieren
@@ -609,5 +610,27 @@ export const newsTopics: NewsTopic[] = [
     label: 'Touristisch',
     keywords: ['beach', 'strand', 'hotel', 'flight', 'flug', 'attraction',
       'sehenswürdigkeit', 'price', 'preis', 'tourist', 'tourism', 'urlaub'],
+  },
+]
+
+// v0.5 — Event-Seeds (feste Veranstaltungen während der Reise) ----------------
+
+/** Feste Event-Seeds (manuell, werden beim ersten Start eingespielt). */
+export const seedEvents: ManualEvent[] = [
+  {
+    id: 'seed-larnaka-festival',
+    title: 'Larnaka Festival — „In the Rhythm of Skala"',
+    date: '2026-07-17',
+    locationName: 'Larnaka (Skala-Viertel)',
+    note: '5.–30.07.2026 — Musik, Tanz, Theater. Läuft während des gesamten Urlaubs!',
+    url: 'https://larnakaregion.com/events',
+  },
+  {
+    id: 'seed-wochenmarkt-agora',
+    title: 'Wochenmarkt Larnaca Agora',
+    date: '2026-07-18',
+    locationName: 'Larnaca Agora',
+    note: 'Jeden Samstagvormittag — frisches Obst, Gemüse, locale Spezialitäten.',
+    url: 'https://www.google.com/maps/search/?api=1&query=Larnaca+Agora+Market',
   },
 ]

@@ -9,8 +9,10 @@ import { HeatBanner } from '@/components/discover/HeatBanner'
 import { HourlyForecast } from '@/components/discover/HourlyForecast'
 import { useWeather } from '@/hooks/useWeather'
 import { useWeatherHourly } from '@/hooks/useWeatherHourly'
+import { useAirQuality } from '@/hooks/useAirQuality'
 import { weatherLocations, homeLocation } from '@/data/tripData'
 import { formatDualTime } from '@/lib/format'
+import { AirQualityBadge } from '@/components/discover/AirQualityBadge'
 
 export function WeatherDetail() {
   const params = useParams()
@@ -25,6 +27,7 @@ export function WeatherDetail() {
     lat: location.lat,
     lon: location.lon,
   })
+  const { data: airQuality } = useAirQuality({ lat: location.lat, lon: location.lon })
 
   return (
     <div className="space-y-4 p-4 pb-24">
@@ -72,6 +75,13 @@ export function WeatherDetail() {
         UV-Verlauf hilft bei der Strandplanung: unter UV 6 ist die Mittagssonne erträglich.
         Gefühlte Temperatur beachten (kann durch Wind deutlich kühler sein).
       </WarningCard>
+
+      {/* Luftqualität & Saharastaub (v0.5 §5) */}
+      {airQuality && (
+        <Card title="Luftqualität & Saharastaub" icon="🌫️">
+          <AirQualityBadge data={airQuality} />
+        </Card>
+      )}
 
       <p className="text-center text-[11px] text-slate-400">
         {updatedAt ? `Zuletzt aktualisiert: ${new Date(updatedAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}` : ''}

@@ -17,14 +17,17 @@ const SOURCES = {
   'gnews-de-zypern': 'https://news.google.com/rss/search?q=Zypern+OR+Larnaka+OR+Aradippou&hl=de&gl=DE&ceid=DE:de',
   'gnews-de-tourismus': 'https://news.google.com/rss/search?q=Zypern+Tourismus+OR+Urlaub&hl=de&gl=DE&ceid=DE:de',
   // Events
-  'larnakaregion': 'https://www.larnakaregion.com/events',
+  'larnakaregion': 'https://larnakaregion.com/events',
+  visitcyprus: 'https://www.visitcyprus.com/events/',
   'incyprus-events': 'https://in-cyprus.philenews.com/category/events/',
   'allaboutlimassol': 'https://allaboutlimassol.com/events/',
-  visitcyprus: 'https://www.visitcyprus.com/index.php/info/events',
-  // Angebote (v0.4)
-  'lidl-cy': 'https://www.lidl.com.cy/angebote',
-  alphamega: 'https://www.alphamega.com.cy/offers',
-  sklavenitis: 'https://www.sklavenitis.com.cy/offers',
+  visitcyprusEvents: 'https://www.visitcyprus.com/index.php/info/events',
+  // Flugstatus (v0.5)
+  'hermes-pfo': 'https://www.hermesairports.com/flight-info/arrivals-and-departures-pfo',
+  // Notdienst-Apotheken (v0.5)
+  'onduty-larnaca': 'https://cyprus.ondutypharmacy.com/larnaca/',
+  // Tankpreise (v0.5)
+  'cyprusfuelguide': 'https://cyprusfuelguide.com/',
 }
 
 /** In-Memory-Cache: srcKey → { text, expiry }. Überlebt warme Function-Instanzen. */

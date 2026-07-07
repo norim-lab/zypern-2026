@@ -65,6 +65,11 @@ export const CACHE_KEYS = {
   // v0.4
   offers: 'zyp2026:offers',
   hourly: 'zyp2026:hourly',
+  // v0.5
+  pharmacy: 'zyp2026:pharmacy',
+  fuel: 'zyp2026:fuel',
+  airQuality: 'zyp2026:air-quality',
+  earthquakes: 'zyp2026:earthquakes',
 } as const
 
 /** 60 min für Angebote (v0.4). */

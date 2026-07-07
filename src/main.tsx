@@ -3,7 +3,11 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { startRefreshScheduler } from '@/lib/refreshScheduler'
+import { useSeedEvents } from '@/hooks/useSeedEvents'
 import './index.css'
+
+// Event-Seeds (Larnaka Festival, Wochenmarkt) einmalig einspielen (v0.5 §6).
+useSeedEvents()
 import App from './App.tsx'
 import { lazy } from 'react'
 import { LazyTab } from '@/components/layout/LazyTab'
@@ -22,6 +26,9 @@ const Shopping = lazy(() => import('@/pages/discover/Shopping').then((m) => ({ d
 const Events = lazy(() => import('@/pages/discover/Events').then((m) => ({ default: m.Events })))
 const News = lazy(() => import('@/pages/discover/News').then((m) => ({ default: m.News })))
 const WeatherDetail = lazy(() => import('@/pages/WeatherDetail').then((m) => ({ default: m.WeatherDetail })))
+const Budget = lazy(() => import('@/pages/Budget').then((m) => ({ default: m.Budget })))
+const Phrasebook = lazy(() => import('@/pages/Phrasebook').then((m) => ({ default: m.Phrasebook })))
+const DocSafe = lazy(() => import('@/pages/DocSafe').then((m) => ({ default: m.DocSafe })))
 const Archive = lazy(() => import('@/pages/Archive').then((m) => ({ default: m.Archive })))
 
 // v0.3: SW-Registrierung erfolgt jetzt React-seitig via PwaUpdateBanner
@@ -55,6 +62,9 @@ const router = createBrowserRouter([
       { path: 'listen', element: <Lists /> },
       { path: 'mehr', element: <More /> },
       { path: 'wetter', element: <LazyTab component={WeatherDetail} tabName="Wetter" /> },
+      { path: 'budget', element: <LazyTab component={Budget} tabName="Budget" /> },
+      { path: 'spickzettel', element: <LazyTab component={Phrasebook} tabName="Spickzettel" /> },
+      { path: 'dokumente', element: <LazyTab component={DocSafe} tabName="Dokumente" /> },
       { path: 'archiv', element: <LazyTab component={Archive} tabName="Archiv" /> },
     ],
   },

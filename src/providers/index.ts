@@ -14,6 +14,11 @@ import { NoopTranslationProvider, ApiTranslationProvider } from './TranslationPr
 import { RssProxyOffersProvider } from './RssProxyOffersProvider'
 import { OpenMeteoHourlyProvider } from './WeatherHourlyProvider'
 import { GooglePlacesRestaurantProvider } from './PlacesRestaurantProvider'
+import { HermesFlightStatusProvider } from './HermesFlightStatusProvider'
+import { CyprusOnDutyPharmacyProvider } from './PharmacyProvider'
+import { CyprusFuelPriceProvider } from './FuelPriceProvider'
+import { OpenMeteoAirQualityProvider } from './AirQualityProvider'
+import { EmscEarthquakeProvider } from './EarthquakeProvider'
 import type { WeatherProvider } from './WeatherProvider'
 import type { FlightStatusProvider } from './FlightStatusProvider'
 import type { MarineProvider } from './MarineProvider'
@@ -40,6 +45,13 @@ export const offersProvider: OffersProvider = new RssProxyOffersProvider()
 export const hourlyWeatherProvider: WeatherHourlyProvider = new OpenMeteoHourlyProvider()
 export const translationProvider: TranslationProvider = makeTranslationProvider()
 export const placesRestaurantProvider: PlacesRestaurantProvider = new GooglePlacesRestaurantProvider()
+
+// v0.5 — Live-Flugstatus, Apotheken, Tankpreise, Luftqualität, Erdbeben
+export const hermesFlightProvider = new HermesFlightStatusProvider()
+export const pharmacyProvider = new CyprusOnDutyPharmacyProvider()
+export const fuelPriceProvider = new CyprusFuelPriceProvider()
+export const airQualityProvider = new OpenMeteoAirQualityProvider()
+export const earthquakeProvider = new EmscEarthquakeProvider()
 
 /** Übersetzungs-Provider: API-Variante, falls URL+Key in .env; sonst Noop. */
 function makeTranslationProvider(): TranslationProvider {

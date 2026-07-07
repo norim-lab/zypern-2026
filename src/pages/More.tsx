@@ -8,6 +8,7 @@ import { parking, excursions, emergency } from '@/data/tripData'
 import { tel } from '@/lib/deepLinks'
 import { formatDateTime, formatEur } from '@/lib/format'
 import { mask } from '@/hooks/usePrivateMode'
+import { OnDutyPharmacyCard } from '@/components/discover/OnDutyPharmacyCard'
 
 export function More() {
   return (
@@ -77,20 +78,32 @@ export function More() {
           Apotheke beim Haus
         </Button>
       </div>
+
+      {/* Notdienst-Apotheken (v0.5 §3) */}
+      <OnDutyPharmacyCard />
+
       <WarningCard level="warn" title="EHIC & Nordzypern" icon="🩺">
         {emergency.ehicNote} {emergency.waterNote}
       </WarningCard>
 
       {/* Archiv (übergreifend) ------------------------------------------------*/}
-      <SectionTitle icon="🗄️">Archiv</SectionTitle>
-      <Card>
-        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
-          Abgelaufene Events, alte News & erledigte To-dos — zentral gesammelt.
-          Nichts verschwindet kommentarlos; löschen nur manuell.
-        </p>
-        <Button href="/archiv" variant="secondary" icon="🗄️" className="w-full">
-          Zum Archiv
-        </Button>
+      <SectionTitle icon="🗄️">Archiv & Werkzeuge</SectionTitle>
+      <div className="grid grid-cols-2 gap-2">
+        <Button href="/archiv" variant="secondary" icon="🗄️" className="text-xs">Archiv</Button>
+        <Button href="/budget" variant="secondary" icon="💶" className="text-xs">Urlaubskasse</Button>
+        <Button href="/spickzettel" variant="secondary" icon="🗣️" className="text-xs">Griechisch</Button>
+        <Button href="/dokumente" variant="secondary" icon="📄" className="text-xs">Dokumente</Button>
+      </div>
+      <Card className="!p-3">
+        <a
+          href="https://effis.jrc.ec.europa.eu/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-2"
+        >
+          <span className="text-sm font-medium">🔥 EFFIS Brandgefahrenkarte</span>
+          <span className="text-xs text-zypern-blue dark:text-sky-300">↗</span>
+        </a>
       </Card>
 
       {/* Roadmap-Platzhalter --------------------------------------------------*/}

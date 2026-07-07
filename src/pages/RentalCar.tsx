@@ -85,6 +85,25 @@ export function RentalCar() {
           </Button>
         </div>
       </Card>
+
+      {/* Tankpreise (v0.5 §4) */}
+      <SectionTitle icon="⛽">Tankpreise & Volltanken</SectionTitle>
+      <Card title="Tankpreis-Vergleich" icon="⛽">
+        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+          Preisunterschiede bis 17–23 Cent/Liter — lohnt sich!
+        </p>
+        <div className="grid grid-cols-1 gap-2">
+          <Button href="https://www.gov.cy/fuelprices" external variant="secondary" icon="🏛️" className="text-xs">
+            Retail Fuel Price Observatory (gov.cy)
+          </Button>
+          <Button href="https://cyprusfuelguide.com/" external variant="secondary" icon="⛽" className="text-xs">
+            cyprusfuelguide.com
+          </Button>
+        </div>
+      </Card>
+      <WarningCard level="warn" title="Volltanken vor Rückgabe" icon="⛽">
+        Tankregel: voll/voll. Günstigste Station nahe Flughafen Paphos in Maps prüfen!
+      </WarningCard>
     </div>
   )
 }
