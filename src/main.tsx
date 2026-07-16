@@ -4,11 +4,15 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { startRefreshScheduler } from '@/lib/refreshScheduler'
 import { injectSeedEvents } from '@/lib/seedEvents'
+import { injectSeedChecklists } from '@/lib/seedChecklists'
 import './index.css'
 
 // Event-Seeds (Larnaka Festival, Wochenmarkt) einmalig einspielen (v0.5 §6).
 // v0.5.1 Fix: reine Funktion statt Hook — kein „Invalid hook call" mehr.
 injectSeedEvents()
+// v0.7: Seed-Checklisten einmalig einspielen (statisch + „Packliste Miron").
+// Gleiches Muster: reine Funktion, vor dem Render, Merge-Flag schützt Updates.
+injectSeedChecklists()
 import App from './App.tsx'
 import { lazy } from 'react'
 import { LazyTab } from '@/components/layout/LazyTab'

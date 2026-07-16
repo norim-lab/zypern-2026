@@ -3,6 +3,7 @@
 import { Card } from '@/components/ui/Card'
 import { WeatherIcon } from '@/components/ui/WeatherIcon'
 import { HourlyForecast } from '@/components/discover/HourlyForecast'
+import { HomeSunLine } from '@/components/widgets/HomeSunLine'
 import { formatDualTime } from '@/lib/format'
 import { CY_TZ } from '@/lib/timezone'
 import type { HourlyForecast as HourlyPoint, SunTimes } from '@/data/types'
@@ -78,6 +79,10 @@ export function DayWeatherCard({ current, hourly, sun, tempMin, tempMax }: DayWe
           <span>🌇 {formatDualTime(sun.sunsetMs)}</span>
         </div>
       )}
+      {/* v0.7: Heimatort-Sonnenzeiten ergänzend darunter. */}
+      <div className="mt-1">
+        <HomeSunLine />
+      </div>
     </Card>
   )
 }

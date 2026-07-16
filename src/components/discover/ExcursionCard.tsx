@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card'
 import { Tag } from '@/components/ui/Tag'
 import { Button } from '@/components/ui/Button'
 import { DistanceBadge } from './DistanceBadge'
-import { mapsDirLatLon } from '@/lib/deepLinks'
+import { mapsDirLatLon, mapsDirLatLonWithOrigin } from '@/lib/deepLinks'
 import type { Excursion } from '@/data/types'
 import type { WithDistance } from '@/hooks/useDistance'
 
@@ -53,7 +53,7 @@ export const ExcursionCard = memo(function ExcursionCard({ excursion }: Excursio
         >
           {expanded ? '▼ weniger' : '▶ Kinder- & Hitze-Infos'}
         </button>
-        <span className="text-[11px] text-slate-400">{item.travelTime}</span>
+        <span className="text-[11px] text-slate-400">{item.travelTime} (ohne Verkehr)</span>
       </div>
 
       <div className="mt-2 flex flex-wrap gap-1">
@@ -63,9 +63,20 @@ export const ExcursionCard = memo(function ExcursionCard({ excursion }: Excursio
         )}
       </div>
 
-      <div className="mt-3">
+      <div className="mt-3 grid grid-cols-1 gap-1.5">
         <Button href={mapsDirLatLon(item.lat, item.lon)} external variant="primary" icon="🧭" className="w-full">
           Navigation
+        </Button>
+        {/* v0.7: Live-Verkehrslage gibt es kostenlos nicht verlässlich →
+            ehrlich auf Google Maps weiterleiten (dort ist Verkehr sichtbar). */}
+        <Button
+          href={mapsDirLatLonWithOrigin(item.lat, item.lon)}
+          external
+          variant="secondary"
+          icon="🚦"
+          className="w-full"
+        >
+          Route mit Verkehr in Maps
         </Button>
       </div>
     </Card>

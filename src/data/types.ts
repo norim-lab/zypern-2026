@@ -228,11 +228,21 @@ export interface ChecklistItem {
   label: string
   /** Optionaler Hinweis */
   hint?: string
+  /** v0.7: optionale Gruppen-ID (zugehörige ChecklistGroup.id). */
+  groupId?: string
+}
+
+/** v0.7: Unterkategorie/Gruppe innerhalb einer Checkliste (z. B. „Medikamente"). */
+export interface ChecklistGroup {
+  /** Eindeutige ID innerhalb der Liste */
+  id: string
+  /** Anzeigetitel der Gruppe */
+  title: string
 }
 
 /** Eine ganze Checkliste (To-dos oder Packliste). */
 export interface Checklist {
-  /** Eindeutige ID (auch localStorage-Key) */
+  /** Eindeutige ID (auch localStorage-Key-Bestandteil) */
   id: string
   /** Anzeigetitel */
   title: string
@@ -242,6 +252,12 @@ export interface Checklist {
   kind: 'todo' | 'pack'
   /** Prüfpunkte */
   items: ChecklistItem[]
+  /** v0.7: optionale Unterkategorien/Gruppen. */
+  groups?: ChecklistGroup[]
+  /** v0.7: optionaler Hinweistext unter dem Titel. */
+  note?: string
+  /** v0.7: Sortierreihenfolge (kleiner = weiter oben). */
+  order: number
 }
 
 /** Notfall- & Gesundheitsinfo. */

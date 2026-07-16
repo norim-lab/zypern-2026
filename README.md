@@ -160,3 +160,7 @@ VITE_PRIVATE_MODE=true npm run build   # personenbezogene Werte → „•••
 - **v0.5:** Fotos/Erinnerungen, Budget-Tracker, Push-Benachrichtigungen
 - **v0.6:** Automatisches Deployment auf IONOS/Hestia (GitHub Actions) + PHP-Proxy
   (`/api/fetch.php`) — PWA-Update-Banner erscheint auf installierten Geräten.
+- **v0.7:** Hotfix `.htaccess` (Hestia-kompatibel) · editierbare Checklisten mit
+  Gruppen + „Packliste Miron" · Heimatort Bad Neuenahr · Sonnenzeiten für Zuhause
+  überall · Verkehrskennzeichnung „ohne Verkehr" + Maps-Verkehr-Buttons ·
+  Reisetags-Karten (Flughafen/Haus/Heimfahrt) · TrafficProvider-Stub.

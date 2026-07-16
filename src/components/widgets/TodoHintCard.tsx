@@ -1,17 +1,20 @@
 // TodoHintCard.tsx — Hinweiskarte mit den wichtigsten offenen To-dos.
 // Wird auf dem Dashboard gezeigt; zählt die offenen Punkte der To-do-Liste.
+// v0.7: liest jetzt die editierbaren Listen via useChecklists (statt statischer
+// tripData), damit hinzugefügte/umbenannte/gelöschte Einträge korrekt gezählt
+// werden. Der Abhak-Key (zyp2026:checklist:todos-open) bleibt identisch.
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useChecklists } from '@/hooks/useChecklists'
 import { useNavigate } from 'react-router-dom'
-import { checklists } from '@/data/tripData'
 
 export function TodoHintCard() {
-  const todos = checklists.find((c) => c.id === 'todos-open')
+  const { lists, getDone } = useChecklists()
+  const todos = lists.find((c) => c.id === 'todos-open')
   const navigate = useNavigate()
-  const [done] = useLocalStorage<Record<string, boolean>>('zyp2026:checklist:todos-open', {})
   if (!todos) return null
 
+  const done = getDone('todos-open')
   const openItems = todos.items.filter((i) => !done[i.id])
   const top = openItems.slice(0, 3)
 

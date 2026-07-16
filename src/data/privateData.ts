@@ -69,3 +69,44 @@ export const bookingCodesPrivate = [
   { label: 'Parken Weeze P2', code: 'WEWSP754368' },
   { label: 'Kennzeichen', code: 'BNQM842' },
 ]
+
+/**
+ * v0.7: Seed-Checkliste „Packliste Miron" — personenbezogen (Medikamente,
+ * Reisedokumente). Liegt bewusst hier in privateData.ts, damit
+ * VITE_PRIVATE_MODE greift (im Privat-Modus wird diese Liste in Lists.tsx
+ * ausgeblendet). Wird beim ERSTEN Start als Seed eingespielt (siehe
+ * seedChecklists.ts) und danach nie wieder angetastet — Nutzereingaben
+ * überleben Updates.
+ */
+import type { Checklist } from './types'
+
+export const packlisteMironSeed: Checklist = {
+  id: 'pack-miron',
+  title: 'Packliste Miron',
+  icon: '💊',
+  kind: 'pack',
+  note: 'Wird laufend ergänzt — Einträge direkt hier hinzufügen.',
+  order: -1, // ganz oben im Listen-Tab
+  groups: [
+    { id: 'g-medikamente', title: 'Medikamente' },
+    { id: 'g-kinder', title: 'Kinder' },
+    { id: 'g-reisedokumente', title: 'Reisedokumente' },
+  ],
+  items: [
+    // Medikamente
+    { id: 'pm-sodbrennen', label: 'Sodbrennen-Medikament', groupId: 'g-medikamente' },
+    { id: 'pm-quviviq', label: 'Quviviq', groupId: 'g-medikamente' },
+    { id: 'pm-xanax', label: 'Xanax', groupId: 'g-medikamente' },
+    { id: 'pm-allopurinol', label: 'Allopurinol', groupId: 'g-medikamente' },
+    { id: 'pm-novalgin', label: 'Novalgin Tropfen', groupId: 'g-medikamente' },
+    // Kinder
+    { id: 'pm-fiebersaft', label: 'Fiebersaft', groupId: 'g-kinder' },
+    { id: 'pm-pflaster', label: 'Pflaster', groupId: 'g-kinder' },
+    { id: 'pm-desinfektion', label: 'Desinfektionsmittel', groupId: 'g-kinder' },
+    { id: 'pm-vitamin-elly', label: 'Vitamin für Elly', groupId: 'g-kinder' },
+    // Reisedokumente
+    { id: 'pm-paesse', label: 'Reisepässe (Elly, Maia, Sovandy, Miron)', groupId: 'g-reisedokumente' },
+    { id: 'pm-krankenkarten', label: 'Krankenkassenkarten (Sovandy, Miron, Maia, Elly)', groupId: 'g-reisedokumente' },
+    { id: 'pm-fuehrerschein', label: 'Führerschein (Miron, Sovandy)', groupId: 'g-reisedokumente' },
+  ],
+}

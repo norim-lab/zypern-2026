@@ -1,7 +1,7 @@
 // =============================================================================
 // format.ts — Deutsche Formatierung für Datum, Uhrzeit, Währung und Dauer.
 // =============================================================================
-import { CY_TZ, DE_TZ, timeInZone } from './timezone'
+import { CY_TZ, DE_TZ, timeInZone, type Timezone } from './timezone'
 
 const deLocale = 'de-DE'
 
@@ -105,4 +105,27 @@ export function formatSunriseSunset(sunriseMs: number, sunsetMs: number): { rise
     rise: `↑ ${formatDualTime(sunriseMs)}`,
     set: `↓ ${formatDualTime(sunsetMs)}`,
   }
+}
+
+/**
+ * v0.7: Sonnenzeiten als kompakte Zeile in einer bestimmten Zeitzone.
+ * Beispiel: „↑ 05:41 · ↓ 21:33 (DE)" oder „↑ 05:41 · ↓ 21:33 (CY)".
+ *
+ * Genutzt für die Heimatort-Sonnenzeiten-Zeile (Europe/Berlin), die ZUSÄTZLICH
+ * zu den Zypern-Doppelzeiten überall dort angezeigt wird, wo Sonnenzeiten stehen.
+ * Die Zeiten werden rein in der übergebenen Zeitzone gezeigt (keine Doppelzeit,
+ * da die Heimatort-Zeile ohnehin „(DE)" ist und Zypern separat oben steht).
+ *
+ * @param tz    Zeitzone, in der die Zeiten angezeigt werden (z. B. DE_TZ).
+ * @param label optionales Label-Suffix (z. B. „DE").
+ */
+export function formatSunLine(
+  sun: { sunriseMs: number; sunsetMs: number },
+  tz: Timezone,
+  label?: string,
+): string {
+  const rise = timeInZone(sun.sunriseMs, tz)
+  const set = timeInZone(sun.sunsetMs, tz)
+  const suffix = label ? ` (${label})` : ''
+  return `↑ ${rise} · ↓ ${set}${suffix}`
 }

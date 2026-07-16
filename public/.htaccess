@@ -1,18 +1,19 @@
 # =============================================================================
 # .htaccess für „Zypern 2026" (Apache, IONOS/Hestia).
 #
+# V0.7-Hotfix: Vorige Version warf Error 500 (Header setPragma-Syntaxfehler +
+# ungeschützte Core-Direktiven). Diese Version ist Hestia-kompatibel:
+#   - ALLE Direktiven in <IfModule ...> gewrappt (Block wird ignoriert, wenn
+#     ein Modul fehlt, statt 500 zu werfen).
+#   - KEINE Options-Direktiven, KEINE <Directory>-Blöcke (Hestia AllowOverride).
+#   - SPA-Rewrite als Kernfunktion funktioniert auch dann, wenn Header-/Mime-/
+#     Expires-Module wegfallen.
 # Landet über Vite automatisch in dist/ und wird mit ausgeliefert.
-# Aufgaben:
-#   1. SPA-Routing: alle Pfade auf index.html, AUSSER existierende Dateien/
-#      Ordner und AUSSER /api/ (PHP-Proxy muss erreichbar bleiben).
-#   2. Korrekte MIME-Types (PWA-Installation, Fonts, Manifest).
-#   3. Caching: index.html + sw.js NIEMALS cachen (sonst erscheint der
-#      PWA-Update-Banner nie). Gehashte Assets (JS/CSS/Fonts) lange cachen.
 # =============================================================================
 
-# --- (1) SPA-Routing --------------------------------------------------------
+# --- (1) SPA-Routing — KERNFUNKTION, muss immer funktionieren ----------------
 # React Router routed client-seitig. Deep-Links / Reload auf /entdecken/einkaufen
-# würden ohne Rewrite 404 auslösen. Existierende Dateien + /api/ bleiben unangetastet.
+# würden ohne Rewrite 404 auslösen. /api/ + existierende Dateien bleiben unangetastet.
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
@@ -28,52 +29,55 @@
     RewriteRule ^ index.html [L]
 </IfModule>
 
-# --- (2) MIME-Types ---------------------------------------------------------
-# Wichtig für PWA-Installation (Manifest) und moderne Font-/Bildformate.
+# --- (2) MIME-Types (PWA-Installation, Fonts, Manifest) ----------------------
 <IfModule mod_mime.c>
     AddType application/manifest+json           .webmanifest
     AddType application/javascript              .mjs
     AddType font/woff2                          .woff2
     AddType image/svg+xml                       .svg
     AddType application/json                    .json
+    AddDefaultCharset UTF-8
 </IfModule>
 
-# --- (3) Caching ------------------------------------------------------------
+# --- (3) Caching via mod_headers ---------------------------------------------
 # Strategie: gehashte Assets dürfen „unendlich" cachen (Dateiname ändert sich
-# bei jedem Build). index.html + sw.js müssen IMMER frisch geholt werden,
-# weil sie die neuen Hashes referenzieren — sonst bleibt der Nutzer auf einer
-# alten Version und der Update-Banner erscheint nie.
-
-# (3a) index.html + sw.js + manifest: NIEMALS cachen.
-<FilesMatch "^(index\.html|sw\.js|manifest\.webmanifest)$">
-    <IfModule mod_headers.c>
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
-        Header setPragma "no-cache"
-    </IfModule>
-</FilesMatch>
-
-# (3b) Gehashte Vite-Assets (lange cachen — Dateiname ändert sich je Build).
-<FilesMatch "\.(js|mjs|css|woff2|png|jpg|jpeg|svg|ico)$">
-    <IfModule mod_headers.c>
-        Header set Cache-Control "public, max-age=31536000, immutable"
-    </IfModule>
-</FilesMatch>
-
-# (3c) /api/fetch.php eigene Cache-Header? — NEIN. Die PHP-Datei setzt selbst
-#      Cache-Control: public, max-age=1800 (siehe fetch.php). Hier nicht
-#      überschreiben.
-
-# --- (4) gzip-Kompression (kleinere Assets, schnellerer Erst-Lade) -----------
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css text/plain
-        application/javascript application/json image/svg+xml
-</IfModule>
-
-# --- (5) Security-Header (Best-Effort auf Shared-Hosting) --------------------
+# je Build). index.html + sw.js müssen IMMER frisch geholt werden — sonst bleibt
+# der Nutzer auf einer alten Version und der Update-Banner erscheint nie.
+# (V0.7-Hotfix: keine „Header setPragma"-Zeile mehr — „Cache-Control: no-store"
+# reicht modern und vermeidet den Syntaxfehler, der den 500 auslöste.)
 <IfModule mod_headers.c>
+    # index.html + sw.js + manifest: NIEMALS cachen.
+    <FilesMatch "^(index\.html|sw\.js|manifest\.webmanifest)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </FilesMatch>
+
+    # Gehashte Vite-Assets (lange cachen — Dateiname ändert sich je Build).
+    <FilesMatch "\.(js|mjs|css|woff2|png|jpg|jpeg|svg|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Security-Header (Best-Effort auf Shared-Hosting).
     Header set X-Content-Type-Options "nosniff"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-# --- (6) UTF-8 Default ------------------------------------------------------
-AddDefaultCharset UTF-8
+# --- (4) Caching via mod_expires (Alternative, falls mod_headers fehlt) ------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # index.html + sw.js + manifest: nicht cachen.
+    <FilesMatch "^(index\.html|sw\.js|manifest\.webmanifest)$">
+        ExpiresByType text/html "access"
+    </FilesMatch>
+    # Gehashte Assets lange.
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>
+
+# --- (5) gzip-Kompression (kleinere Assets, schnellerer Erst-Lade) -----------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript application/json image/svg+xml
+</IfModule>

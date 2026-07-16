@@ -74,3 +74,6 @@ export const CACHE_KEYS = {
 
 /** 60 min für Angebote (v0.4). */
 export const OFFERS_TTL = HOURLY_TTL
+
+/** 60 min für Heimatort-Sonnenzeiten (v0.7) — ändern sich nur langsam am Tag. */
+export const HOME_SUN_TTL = 60 * 60 * 1000

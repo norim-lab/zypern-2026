@@ -5,6 +5,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { Card } from '@/components/ui/Card'
 import { WarningCard } from '@/components/ui/WarningCard'
 import { WeatherWidget } from '@/components/widgets/WeatherWidget'
+import { HomeSunLine } from '@/components/widgets/HomeSunLine'
 import { HeatBanner } from '@/components/discover/HeatBanner'
 import { HourlyForecast } from '@/components/discover/HourlyForecast'
 import { useWeather } from '@/hooks/useWeather'
@@ -60,6 +61,12 @@ export function WeatherDetail() {
               🌅 Goldene Stunde (Strandfotos): ab{' '}
               {formatDualTime(hourly.sun.sunsetMs - 3600_000)}
             </p>
+          )}
+          {/* v0.7: Heimatort-Sonnenzeiten (nur im Zypern-Modus sinnvoll). */}
+          {!isHome && (
+            <div className="mt-2 border-t border-slate-100 pt-2 text-center dark:border-slate-700">
+              <HomeSunLine />
+            </div>
           )}
         </Card>
       )}

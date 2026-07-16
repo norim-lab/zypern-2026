@@ -6,7 +6,8 @@ import { Card } from '@/components/ui/Card'
 import { Tag } from '@/components/ui/Tag'
 import { Button } from '@/components/ui/Button'
 import { DistanceBadge } from './DistanceBadge'
-import { mapsDirLatLon } from '@/lib/deepLinks'
+import { HomeSunLine } from '@/components/widgets/HomeSunLine'
+import { mapsDirLatLon, mapsDirLatLonWithOrigin } from '@/lib/deepLinks'
 import { formatSunset } from '@/lib/format'
 import type { BeachConditions } from '@/providers'
 import type { Beach } from '@/data/types'
@@ -99,6 +100,8 @@ export const BeachCard = memo(function BeachCard({ beach, conditions, loading }:
           <p>{item.description}</p>
           {item.bestTime && <p>🕐 Beste Zeit: {item.bestTime}</p>}
           {conditions?.sunset && <p>{formatSunset(conditions.sunset)}</p>}
+          {/* v0.7: Heimatort-Sonnenzeiten ergänzend. */}
+          <HomeSunLine />
           <p className="text-slate-400">
             Tipp: Öffnungszeiten/Bewertungen immer live in Google Maps prüfen.
           </p>
@@ -106,9 +109,19 @@ export const BeachCard = memo(function BeachCard({ beach, conditions, loading }:
       )}
 
       {/* Navigation */}
-      <div className="mt-3">
+      <div className="mt-3 grid grid-cols-1 gap-1.5">
         <Button href={mapsDirLatLon(item.lat, item.lon)} external variant="primary" icon="🧭" className="w-full">
           Navigation
+        </Button>
+        {/* v0.7: Live-Verkehrslage über Google Maps (keine eigene Fake-API). */}
+        <Button
+          href={mapsDirLatLonWithOrigin(item.lat, item.lon)}
+          external
+          variant="secondary"
+          icon="🚦"
+          className="w-full"
+        >
+          Route mit Verkehr in Maps
         </Button>
       </div>
     </Card>

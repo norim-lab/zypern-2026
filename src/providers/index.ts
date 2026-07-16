@@ -19,6 +19,8 @@ import { CyprusOnDutyPharmacyProvider } from './PharmacyProvider'
 import { CyprusFuelPriceProvider } from './FuelPriceProvider'
 import { OpenMeteoAirQualityProvider } from './AirQualityProvider'
 import { EmscEarthquakeProvider } from './EarthquakeProvider'
+import { NoopTrafficProvider } from './NoopTrafficProvider'
+import { OpenMeteoHomeSunProvider } from './HomeSunTimesProvider'
 import type { WeatherProvider } from './WeatherProvider'
 import type { FlightStatusProvider } from './FlightStatusProvider'
 import type { MarineProvider } from './MarineProvider'
@@ -53,6 +55,10 @@ export const fuelPriceProvider = new CyprusFuelPriceProvider()
 export const airQualityProvider = new OpenMeteoAirQualityProvider()
 export const earthquakeProvider = new EmscEarthquakeProvider()
 
+// v0.7 — Heimatort-Sonnenzeiten + Verkehrslage (Stub)
+export const homeSunProvider = new OpenMeteoHomeSunProvider()
+export const trafficProvider = new NoopTrafficProvider()
+
 /** Übersetzungs-Provider: API-Variante, falls URL+Key in .env; sonst Noop. */
 function makeTranslationProvider(): TranslationProvider {
   const url = import.meta.env.VITE_TRANSLATE_API_URL as string | undefined
@@ -76,3 +82,5 @@ export type { OffersProvider, OffersResult } from './OffersProvider'
 export type { TranslationProvider, TranslateLinks } from './TranslationProvider'
 export type { WeatherHourlyProvider, HourlyWeather } from './WeatherHourlyProvider'
 export type { PlacesRestaurantProvider } from './PlacesRestaurantProvider'
+export type { TrafficProvider, TrafficInfo } from './TrafficProvider'
+export type { HomeSunTimesProvider, HomeSunTimes } from './HomeSunTimesProvider'

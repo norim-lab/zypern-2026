@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { StarRating } from '@/components/ui/StarRating'
 import { DistanceBadge } from './DistanceBadge'
 import { useFamilyRating } from '@/hooks/useFamilyRating'
-import { mapsSearch } from '@/lib/deepLinks'
+import { mapsSearch, mapsDirLatLon, mapsDirLatLonWithOrigin } from '@/lib/deepLinks'
 import type { Market } from '@/data/types'
 import type { WithDistance } from '@/hooks/useDistance'
 
@@ -35,11 +35,21 @@ export function MarketCard({ market }: MarketCardProps) {
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <Button href={`https://www.google.com/maps/dir/?api=1&destination=${item.lat},${item.lon}`} external variant="primary" icon="🧭" className="text-xs">
+        <Button href={mapsDirLatLon(item.lat, item.lon)} external variant="primary" icon="🧭" className="text-xs">
           Navigation
         </Button>
         <Button href={mapsSearch(item.query)} external variant="secondary" icon="⭐" className="text-xs">
           Bewertungen in Maps
+        </Button>
+        {/* v0.7: Live-Verkehrslage via Google Maps (keine eigene Fake-API). */}
+        <Button
+          href={mapsDirLatLonWithOrigin(item.lat, item.lon)}
+          external
+          variant="ghost"
+          icon="🚦"
+          className="text-xs sm:col-span-2"
+        >
+          Route mit Verkehr in Maps
         </Button>
       </div>
     </Card>

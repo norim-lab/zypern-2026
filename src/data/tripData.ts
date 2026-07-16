@@ -481,6 +481,7 @@ export const checklists: Checklist[] = [
     title: 'Offene To-dos',
     icon: '📋',
     kind: 'todo',
+    order: 0,
     items: [
       { id: 't-voucher', label: 'Voucher Auto Europe prüfen (kommt binnen 72 h)' },
       { id: 't-bank', label: 'Bankverbindung für Gutschein-Erstattung eintragen' },
@@ -506,6 +507,7 @@ export const checklists: Checklist[] = [
     title: 'Packliste Erwachsene',
     icon: '🧳',
     kind: 'pack',
+    order: 1,
     items: [
       { id: 'a-key', label: 'Hausschlüssel Damian Home (!)' },
       { id: 'a-docs', label: 'Dokumente (Ausweise, EHIC, Buchungen, Führerschein)' },
@@ -519,6 +521,7 @@ export const checklists: Checklist[] = [
     title: 'Packliste Kinder',
     icon: '👶',
     kind: 'pack',
+    order: 2,
     items: [
       { id: 'k-vest', label: 'Schwimmweste Elly', hint: 'vorhanden ✓' },
       { id: 'k-uv', label: 'Schwimmhilfen/UV-Shirts' },
@@ -537,6 +540,7 @@ export const checklists: Checklist[] = [
     title: 'Strandtasche',
     icon: '🏖️',
     kind: 'pack',
+    order: 3,
     items: [
       { id: 's-water', label: 'Wasser' },
       { id: 's-lsf', label: 'Sonnencreme LSF 50+' },
@@ -565,12 +569,14 @@ export const bookingCodes: { label: string; code: string }[] = bookingCodesPriva
 // v0.4 — Heimatort, Märkte, Angebote, News-Themen
 // ===========================================================================
 
-/** Heimatort für das „Zuhause"-Wetter-Widget (Platzhalter Weeze).
- *  Vollständige WeatherLocation (stabile Referenz, Europe/Berlin). */
+/** Heimatort für das „Zuhause"-Wetter-Widget (v0.7: Bad Neuenahr, ehemals Weeze).
+ *  Vollständige WeatherLocation (stabile Referenz, Europe/Berlin).
+ *  Hinweis: Weeze bleibt separat als Abreise-Flughafen-Standort (weatherLocations[1],
+ *  Flughafen NRN, Parkplatz) — das ist nicht der Heimatort. */
 export const homeLocation: WeatherLocation = {
-  name: 'Zuhause (Weeze)',
-  lat: 51.6,
-  lon: 6.14,
+  name: 'Zuhause (Bad Neuenahr)',
+  lat: 50.543,
+  lon: 7.113,
   timezone: 'Europe/Berlin',
 }
 

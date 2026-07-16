@@ -37,6 +37,28 @@ export function mapsDirLatLon(lat: number, lon: number): string {
 }
 
 /**
+ * v0.7: Google-Maps-Navigation mit Start UND Ziel (beides als Text/Adresse).
+ * Maps zeigt die Live-Verkehrslage automatisch in der Routenansicht — daher
+ * der Button „🚦 Route mit Verkehr in Maps" überall bei Fahrten.
+ */
+export function mapsDirOriginDest(origin: string, destination: string): string {
+  const o = encodeURIComponent(origin)
+  const d = encodeURIComponent(destination)
+  return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}`
+}
+
+/**
+ * v0.7: Google-Maps-Navigation ab aktuellem GPS-Standort zu Koordinaten.
+ * Maps nutzt den Geräte-Standort als Start; Verkehrslage wird automatisch
+ * eingeblendet. Ideal für „Route mit Verkehr"-Buttons bei Ausflügen/Stränden.
+ */
+export function mapsDirLatLonWithOrigin(lat: number, lon: number): string {
+  // Kein origin-Param → Maps nimmt GPS. Verkehrslage ist dann in der App sichtbar.
+  // (expliziter travelmode=driving für konsistente Routenführung)
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`
+}
+
+/**
  * Google-Maps-Suche ohne expliziten Standort — Maps nutzt automatisch den
  * aktuellen Standort des Geräts. Ideal für „In der Nähe suchen"-Kacheln.
  */
