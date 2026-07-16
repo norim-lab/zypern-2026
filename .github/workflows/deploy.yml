@@ -116,9 +116,13 @@ jobs:
         run: |
           set -e
           MAX=3
+          # WICHTIG: dist/* erfasst KEINE Dotfiles (.htaccess ist eine Dotfile).
+          # Daher cp -r dist/. (mit dem Ordner-Inhalt inkl. Dotfiles) statt dist/*.
+          # Der Zielordner ist via $DEPLOY_PATH bereits vorhanden (Preflight).
           for i in $(seq 1 $MAX); do
             echo "=== SCP Versuch $i/$MAX ==="
-            if sshpass -p "$SSH_PASSWORD" scp $SSHPASS_OPTS -r -p dist/* "$SSH_USERNAME@$SSH_HOST:$DEPLOY_PATH/"; then
+            # -r rekursiv, -p times/perm erhalten. Quell-Glob inkl. Dotfiles.
+            if sshpass -p "$SSH_PASSWORD" scp $SSHPASS_OPTS -r -p dist/. "$SSH_USERNAME@$SSH_HOST:$DEPLOY_PATH/"; then
               echo "SCP erfolgreich (Versuch $i)."
               exit 0
             fi
@@ -145,6 +149,8 @@ jobs:
             test -f index.html      || { echo 'FEHLER: index.html fehlt auf Server';      exit 1; }; \
             test -f sw.js           || { echo 'FEHLER: sw.js fehlt auf Server';           exit 1; }; \
             test -f api/fetch.php   || { echo 'FEHLER: api/fetch.php fehlt auf Server';   exit 1; }; \
-            test -f .htaccess       || { echo 'WARNUNG: .htaccess fehlt auf Server'; }; \
-            echo 'Verify OK — Deployment erfolgreich:'; \
-            ls -la index.html sw.js api/fetch.php .htaccess"
+            if [ -f .htaccess ]; then echo '.htaccess vorhanden'; else echo 'WARNUNG: .htaccess fehlt auf Server (SPA-Rewrite/Caching fehlen)'; fi; \
+            echo 'Verify OK — Deployment erfolgreich (kritische Dateien):'; \
+            ls -la index.html sw.js api/fetch.php; \
+            echo 'Optional (.htaccess):'; \
+            ls -la .htaccess 2>/dev/null || true"
