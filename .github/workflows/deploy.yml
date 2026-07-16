@@ -1,0 +1,150 @@
+# =============================================================================
+# deploy.yml — Automatisches Deployment der „Zypern 2026"-PWA auf den
+# IONOS-Server (Hestia CP) via GitHub Actions.
+#
+# Muster wie im story-Repo (.github/workflows/deploy.yml):
+#   Build lokal (npm) → Preflight per SSH (mkdir -p + Schreibtest)
+#   → natives SCP mit sshpass (3 Versuche mit Retry)
+#   → Verify per SSH (index.html, sw.js, api/fetch.php vorhanden).
+#
+# Secrets (gleiche Namen wie im story-Repo, KEINE FTP-Secrets):
+#   SSH_HOST      Host des IONOS-Servers (z. B. s12345678.onlinepool-server.hosting)
+#   SSH_USERNAME  SSH-Benutzer (Hestia-User, z. B. miron777)
+#   SSH_PASSWORD  SSH-Passwort
+#
+# Zielpfad (Subdomain vorher in Hestia anlegen!):
+#   /home/miron777/web/zypern.zeitblytz.media/public_html
+# =============================================================================
+name: Deploy (IONOS/Hestia)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-ionos
+  cancel-in-progress: false
+
+env:
+  # Zielpfad auf dem Server (Subdomain vorher in Hestia anlegen).
+  DEPLOY_PATH: /home/miron777/web/zypern.zeitblytz.media/public_html
+  # sshpass/ssh Optionen: bekannter Host wird nicht streng geprüft (shared CI),
+  # um den ersten Lauf ohne manuellen known_hosts-Eintrag zu erleichtern.
+  SSHPASS_OPTS: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # --- Checkout --------------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- Node 20 einrichten (mit npm-Cache) -----------------------------
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # --- Abhängigkeiten -------------------------------------------------
+      - name: Install dependencies
+        run: npm ci
+
+      # --- Build ----------------------------------------------------------
+      - name: Build
+        run: npm run build
+
+      # --- server/fetch.php + Cache-Ordner nach dist/api kopieren ---------
+      # Die PHP-Proxy-Variante gehört ins Build-Output, damit sie per SCP mit
+      # ausgeliefert wird. public/.htaccess liegt bereits durch Vite in dist/.
+      - name: Stage PHP proxy into dist/api
+        run: |
+          mkdir -p dist/api
+          cp server/fetch.php dist/api/fetch.php
+          # Cache-Ordner (runtime) + dessen .htaccess-Sperre mitnehmen.
+          mkdir -p dist/api/cache
+          cp server/.htaccess dist/api/cache/.htaccess
+          # Platzhalter, damit der Ordner beim SCP existiert.
+          touch dist/api/cache/.gitkeep
+
+      # --- Sanity-Check: Build-Output vorhanden? --------------------------
+      - name: Verify build output
+        run: |
+          test -f dist/index.html   || { echo "FEHLER: dist/index.html fehlt"; exit 1; }
+          test -f dist/sw.js        || { echo "FEHLER: dist/sw.js fehlt";     exit 1; }
+          test -f dist/.htaccess    || { echo "FEHLER: dist/.htaccess fehlt"; exit 1; }
+          test -f dist/api/fetch.php || { echo "FEHLER: dist/api/fetch.php fehlt"; exit 1; }
+          echo "Build-Output OK:"
+          ls -la dist dist/api
+
+      # --- sshpass installieren (natives SCP mit Passwort-Auth) -----------
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      # --- Preflight per SSH ----------------------------------------------
+      # Zielverzeichnis anlegen + Schreibtest. Bricht früh ab, wenn die
+      # Subdomain/noch nicht existiert oder Berechtigungen fehlen.
+      - name: "Preflight (SSH: mkdir + Schreibtest)"
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          set -e
+          sshpass -p "$SSH_PASSWORD" ssh $SSHPASS_OPTS "$SSH_USERNAME@$SSH_HOST" "\
+            set -e; \
+            mkdir -p '$DEPLOY_PATH/api/cache'; \
+            test -w '$DEPLOY_PATH' || { echo 'FEHLER: $DEPLOY_PATH nicht beschreibbar'; exit 1; }; \
+            echo 'Preflight OK: Verzeichnis vorhanden + beschreibbar'; \
+            ls -ld '$DEPLOY_PATH'"
+
+      # --- Deploy per nativem SCP mit sshpass (3 Versuche + Retry) --------
+      # retry.sh: bei Misserfolg (Netzwerkfehler) bis zu 3x mit Wartezeit.
+      # Kopiert dist/ rekursiv in den Zielordner (ohne den Ordner selbst).
+      - name: Deploy via SCP (with retry)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          set -e
+          MAX=3
+          for i in $(seq 1 $MAX); do
+            echo "=== SCP Versuch $i/$MAX ==="
+            if sshpass -p "$SSH_PASSWORD" scp $SSHPASS_OPTS -r -p dist/* "$SSH_USERNAME@$SSH_HOST:$DEPLOY_PATH/"; then
+              echo "SCP erfolgreich (Versuch $i)."
+              exit 0
+            fi
+            if [ "$i" -lt "$MAX" ]; then
+              echo "SCP fehlgeschlagen, retry in 10s …"
+              sleep 10
+            fi
+          done
+          echo "FEHLER: SCP nach $MAX Versuchen gescheitert."
+          exit 1
+
+      # --- Verify per SSH -------------------------------------------------
+      # Stellt sicher, dass die drei kritischen Dateien wirklich oben sind.
+      - name: "Verify (SSH: index.html, sw.js, api/fetch.php)"
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          set -e
+          sshpass -p "$SSH_PASSWORD" ssh $SSHPASS_OPTS "$SSH_USERNAME@$SSH_HOST" "\
+            set -e; \
+            cd '$DEPLOY_PATH'; \
+            test -f index.html      || { echo 'FEHLER: index.html fehlt auf Server';      exit 1; }; \
+            test -f sw.js           || { echo 'FEHLER: sw.js fehlt auf Server';           exit 1; }; \
+            test -f api/fetch.php   || { echo 'FEHLER: api/fetch.php fehlt auf Server';   exit 1; }; \
+            test -f .htaccess       || { echo 'WARNUNG: .htaccess fehlt auf Server'; }; \
+            echo 'Verify OK — Deployment erfolgreich:'; \
+            ls -la index.html sw.js api/fetch.php .htaccess"

@@ -109,6 +109,43 @@ Serverless-Function (`/api/fetch?src=<key>`) mit fester Quellen-Whitelist +
 - Repo importieren; `netlify.toml` liegt bei (Publish `dist`, Functions
   `netlify/functions/`, Rewrite `/api/fetch` → `/.netlify/functions/fetch`).
 
+### IONOS/Hestia (GitHub Actions) — PHP-Proxy
+
+Für den IONOS-Server (Hestia CP) läuft das Deployment vollautomatisch über
+GitHub Actions (`.github/workflows/deploy.yml`). Da auf Apache-Hosting **keine**
+Vercel-/Netlify-Functions laufen, gibt es eine eigene **PHP-Variante** des
+Proxys (`server/fetch.php`), die ins Build nach `dist/api/fetch.php` kopiert
+und mit ausgeliefert wird.
+
+**Proxy-Kette im Client** (`src/lib/proxyChain.ts`):
+1. `/api/fetch.php?src=…` (IONOS, PHP) → 2. `/api/fetch?src=…` (Vercel/Netlify)
+   → 3. `allorigins` → 4. Link-Kachel. Pro Stufe wird die Erreichbarkeit **einmal
+   pro Session** geprüft und gemerkt (kein Request-Spam).
+
+**`fetch.php`** hat eine identische, feste Quellen-Whitelist wie
+`api/_proxyCore.js` (News, Events, Flugstatus, Apotheken, Tankpreise, Angebote),
+30-min File-Cache (`dist/api/cache/`, per `.htaccess` gesperrt), 12-s-Timeout
+und CORS-/Content-Type-Header. Fremde URLs außerhalb der Whitelist → **403**.
+
+> ⚠️ **Proxy-Quellen pflegen:** Die Whitelist existiert in zwei Dateien
+> (`api/_proxyCore.js` für Vercel/Netlify und `server/fetch.php` für IONOS).
+> Eine neue Quelle muss in **beide** eingetragen werden.
+
+**Einrichtung (einmalig):**
+1. **Secrets** im GitHub-Repo setzen (Settings → Secrets → Actions):
+   `SSH_HOST`, `SSH_USERNAME`, `SSH_PASSWORD` (gleiche Namen wie im story-Repo;
+   keine FTP-Secrets).
+2. **Subdomain** in Hestia anlegen (z. B. `zypern.zeitblytz.media`) — dabei
+   wird das Zielverzeichnis `/home/miron777/web/zypern.zeitblytz.media/public_html`
+   automatisch erzeugt. Pfad ggf. im Workflow (`DEPLOY_PATH`) anpassen.
+3. **Push auf `main`** triggert den Workflow: `npm ci` → `npm run build` →
+   `server/fetch.php` nach `dist/api/` kopieren → Preflight (SSH: `mkdir -p` +
+   Schreibtest) → natives **SCP mit sshpass** (3 Versuche + Retry) → Verify
+   (`index.html`, `sw.js`, `api/fetch.php`).
+4. Nach erstem erfolgreichen Lauf: App unter der Subdomain öffnen, alle Tabs
+   testen, im Netzwerk-Tab prüfen, dass News/Events über `/api/fetch.php`
+   laden (nicht `allorigins`), PWA-Installation + Offline-Modus testen.
+
 ### Rein statisch (z. B. GitHub Pages)
 - `npm run build` → `dist/` hosten. News/Events nutzen dann allorigins-Fallback.
 
@@ -121,3 +158,5 @@ VITE_PRIVATE_MODE=true npm run build   # personenbezogene Werte → „•••
 
 - **v0.4:** Sync mit Notion-Hub, geteilte Checklisten (mehrere Geräte), Tagesplaner
 - **v0.5:** Fotos/Erinnerungen, Budget-Tracker, Push-Benachrichtigungen
+- **v0.6:** Automatisches Deployment auf IONOS/Hestia (GitHub Actions) + PHP-Proxy
+  (`/api/fetch.php`) — PWA-Update-Banner erscheint auf installierten Geräten.

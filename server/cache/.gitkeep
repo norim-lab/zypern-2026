@@ -1,0 +1,3 @@
+# Dieser Ordner hält den File-Cache der fetch.php (pro Quelle eine .cache-Datei).
+# Wird zur Laufzeit beim ersten Request beschrieben. Per ../.htaccess gesperrt —
+# Dateien hier werden vom Apache NIEMALS direkt ausgeliefert.
