@@ -1,5 +1,6 @@
 // Flights.tsx — Beide Flüge (Hin & Rück) mit Live-Status.
 import { FlightCard } from '@/components/widgets/FlightCard'
+import { OfflineFlightTracker } from '@/components/widgets/OfflineFlightTracker'
 import { WarningCard } from '@/components/ui/WarningCard'
 import { outboundFlight, returnFlight } from '@/data/tripData'
 
@@ -19,6 +20,9 @@ export function Flights() {
 
       <FlightCard flight={outboundFlight} kind="Hinflug" />
       <FlightCard flight={returnFlight} kind="Rückflug" />
+
+      {/* v0.7.1: Offline-Flug-Tracker „Wo sind wir?" (rein via GPS). */}
+      <OfflineFlightTracker />
     </div>
   )
 }

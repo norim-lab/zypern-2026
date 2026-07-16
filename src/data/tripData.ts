@@ -41,6 +41,16 @@ export const weatherLocations: WeatherLocation[] = [
   { name: 'Weeze (Abreise)', lat: 51.6, lon: 6.14, timezone: 'Europe/Berlin' },
 ]
 
+/**
+ * v0.7.1: Flughafen-Koordinaten für den Offline-Flug-Tracker.
+ * Statische, allgemein bekannte Flughafen-Positionen (keine API, nichts erfinden).
+ * Quelle: offizielle Flughafen-Koordinaten (Weeze Airport / Paphos International).
+ */
+export const AIRPORT_COORDS: Record<string, { name: string; lat: number; lon: number }> = {
+  NRN: { name: 'Weeze (NRN)', lat: 51.6022, lon: 6.1417 },
+  PFO: { name: 'Paphos (PFO)', lat: 34.7180, lon: 32.4860 },
+}
+
 /** Reise-Metadaten. */
 export const trip: Trip = {
   title: 'Zypern 2026',
