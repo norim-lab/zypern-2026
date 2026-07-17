@@ -206,6 +206,147 @@ export const parking: Parking = {
   navigationUrl: 'https://www.google.com/maps/dir/?api=1&destination=Flughafen-Ring+1,+47652+Weeze',
 }
 
+// Reise-Zeitstrahl (v0.7.2) -------------------------------------------------
+// Puffer und Fahrzeiten als konfigurierbare Konstanten (nicht hart in Komponenten).
+// Alle Werte sind SCHÄTZUNGEN — wird in der UI mit „≈" gekennzeichnet.
+
+/** Puffer/Zeiten für die Hinflug-Kette (17.07.) in Minuten. */
+export const JOURNEY_BUFFERS_OUTBOUND = {
+  /** Aussteigen + Gepäck (2 Kinder + 2 Koffer + Kinderwagen). */
+  luggageMin: 35,
+  /** Mietwagen-Übernahme am Get-Your-Car-Schalter. */
+  carPickupMin: 30,
+  /** Fahrt PFO → Damian Home (ohne Verkehr). */
+  driveToHomeMin: 80,
+} as const
+
+/** Puffer/Zeiten für die Rückreise-Kette (07.08.) in Minuten. */
+export const JOURNEY_BUFFERS_RETURN = {
+  /** Check-in + Sicherheit am Flughafen PFO vor Abflug. */
+  checkinMin: 120,
+  /** Aussteigen + Gepäck in NRN. */
+  luggageMin: 30,
+  /** Fußweg Terminal → P2. */
+  walkToParkingMin: 5,
+  /** Heimfahrt NRN → Bad Neuenahr (ohne Verkehr). */
+  driveHomeMin: 100,
+} as const
+
+/** Eine Etappe des Reise-Zeitstrahls. */
+export interface JourneyStage {
+  id: string
+  /** Emoji-Icon der Etappe. */
+  icon: string
+  /** Kurzbezeichnung (z. B. „Landung PFO"). */
+  label: string
+  /** Optionaler Ort/Zusatz. */
+  place?: string
+  /**
+   * Geplante/geschätzte Uhrzeit als ISO-String (mit Offset, zeitzonensicher).
+   * Wird vom Hook überschrieben, sobald eine Live-ETA vorliegt.
+   */
+  at: string
+  /** Wahr, wenn es sich um eine Schätzung handelt („≈"-Kennzeichnung in UI). */
+  estimate?: boolean
+}
+
+/**
+ * Hinflug-Kette (17.07.) — Etappen ab Landung PFO bis Ankunft Damian Home.
+ * Berechnet aus arrivalAt + JOURNEY_BUFFERS_OUTBOUND.
+ */
+function buildOutboundStages(): JourneyStage[] {
+  const landing = new Date(outboundFlight.arrivalAt).getTime()
+  const add = (min: number) => new Date(landing + min * 60_000).toISOString()
+  const b = JOURNEY_BUFFERS_OUTBOUND
+  return [
+    { id: 'out-landing', icon: '🛬', label: 'Landung PFO', at: outboundFlight.arrivalAt },
+    {
+      id: 'out-luggage',
+      icon: '🧳',
+      label: 'Aussteigen + Gepäck',
+      at: add(b.luggageMin),
+      estimate: true,
+    },
+    {
+      id: 'out-car',
+      icon: '🚗',
+      label: 'Mietwagen-Übernahme',
+      place: 'Get Your Car Schalter',
+      at: add(b.luggageMin + b.carPickupMin),
+      estimate: true,
+    },
+    {
+      id: 'out-drive',
+      icon: '🛣️',
+      label: 'Fahrt nach Aradippou',
+      place: '≈ 1 h 20 ohne Verkehr',
+      at: add(b.luggageMin + b.carPickupMin + b.driveToHomeMin),
+      estimate: true,
+    },
+    {
+      id: 'out-arrival',
+      icon: '🏠',
+      label: 'Ankunft Damian Home',
+      at: add(b.luggageMin + b.carPickupMin + b.driveToHomeMin),
+      estimate: true,
+    },
+  ]
+}
+
+/**
+ * Rückreise-Kette (07.08.) — Etappen ab Mietwagen-Rückgabe bis Ankunft Bad Neuenahr.
+ * Mietwagen-Rückgabe ist auf 15:30 geplant (returnTimeChangeNeeded); Abflug 18:55;
+ * Landung NRN 22:15; Ankunft Bad Neuenahr nach Mitternacht am 08.08.
+ */
+function buildReturnStages(): JourneyStage[] {
+  // Mietwagen-Rückgabe geplant auf 15:30 (siehe returnTimeChangeNeeded).
+  const carReturnIso = '2026-08-07T15:30:00'
+  const carReturn = new Date(carReturnIso).getTime()
+  const landingNrn = new Date(returnFlight.arrivalAt).getTime()
+  const b = JOURNEY_BUFFERS_RETURN
+  const addFromLanding = (min: number) => new Date(landingNrn + min * 60_000).toISOString()
+  return [
+    { id: 'ret-carreturn', icon: '🚗', label: 'Mietwagen-Rückgabe', place: 'geplant 15:30', at: carReturnIso, estimate: true },
+    { id: 'ret-checkin', icon: '🎫', label: 'Check-in + Sicherheit', at: new Date(carReturn + b.checkinMin * 60_000).toISOString(), estimate: true },
+    { id: 'ret-departure', icon: '🛫', label: 'Abflug PFO', at: returnFlight.departureAt },
+    { id: 'ret-landing', icon: '🛬', label: 'Landung NRN', at: returnFlight.arrivalAt },
+    {
+      id: 'ret-luggage',
+      icon: '🧳',
+      label: 'Gepäck',
+      at: addFromLanding(b.luggageMin),
+      estimate: true,
+    },
+    {
+      id: 'ret-walk',
+      icon: '🚶',
+      label: 'Fußweg P2',
+      at: addFromLanding(b.luggageMin + b.walkToParkingMin),
+      estimate: true,
+    },
+    {
+      id: 'ret-drive',
+      icon: '🛣️',
+      label: 'Heimfahrt',
+      place: '≈ 1 h 40 ohne Verkehr',
+      at: addFromLanding(b.luggageMin + b.walkToParkingMin + b.driveHomeMin),
+      estimate: true,
+    },
+    {
+      id: 'ret-arrival',
+      icon: '🏠',
+      label: 'Ankunft Bad Neuenahr',
+      at: addFromLanding(b.luggageMin + b.walkToParkingMin + b.driveHomeMin),
+      estimate: true,
+    },
+  ]
+}
+
+/** Hinflug-Etappen (berechnet aus Flugdaten + Puffer). */
+export const outboundJourneyStages: JourneyStage[] = buildOutboundStages()
+/** Rückreise-Etappen (berechnet aus Flugdaten + Puffer). */
+export const returnJourneyStages: JourneyStage[] = buildReturnStages()
+
 // Ausflüge ----------------------------------------------------------------
 // v0.2: mit Koordinaten für Distanz-Sortierung + Maps-Navigation je Ziel.
 

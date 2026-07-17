@@ -4,12 +4,31 @@ import { WarningCard } from '@/components/ui/WarningCard'
 import { Button } from '@/components/ui/Button'
 import { InfoRow } from '@/components/ui/InfoRow'
 import { SectionTitle } from '@/components/ui/SectionTitle'
-import { rentalCar } from '@/data/tripData'
+import { rentalCar, outboundFlight, JOURNEY_BUFFERS_OUTBOUND } from '@/data/tripData'
 import { tel, mailto } from '@/lib/deepLinks'
-import { formatDateTime, formatEur } from '@/lib/format'
+import { formatDateTime, formatEur, formatDualTime, formatCountdownHrsMin } from '@/lib/format'
 import { mask } from '@/hooks/usePrivateMode'
+import { useJourneyETA } from '@/hooks/useJourneyETA'
 
 export function RentalCar() {
+  const { eta } = useJourneyETA()
+
+  // Geschätzte Übernahme-Uhrzeit: Landung + Gepäck + Übernahme-Puffer.
+  // Bei Live-ETA (Hinflug) wird die Landung aus dem Tracker genommen,
+  // sonst die Plan-Landezeit. Schätzung → „≈"-Kennzeichnung.
+  const landingBase =
+    eta && eta.direction === 'outbound' ? eta.landingMs : new Date(outboundFlight.arrivalAt).getTime()
+  const pickupMs =
+    landingBase +
+    (JOURNEY_BUFFERS_OUTBOUND.luggageMin + JOURNEY_BUFFERS_OUTBOUND.carPickupMin) * 60_000
+  const isLivePickup = !!(eta && eta.direction === 'outbound')
+
+  // Rückgabe-Countdown: geplant auf 15:30 am 07.08.
+  const returnDeadlineMs = new Date('2026-08-07T15:30:00').getTime()
+  const now = Date.now()
+  const msUntilReturn = returnDeadlineMs - now
+  const showReturnCountdown = msUntilReturn > 0 && msUntilReturn < 36 * 60 * 60_000 // ≤36h vor Deadline
+
   return (
     <div className="space-y-4 p-4 pb-24">
       <SectionTitle icon="🚗">Mietwagen · {rentalCar.localVendor}</SectionTitle>
@@ -18,6 +37,36 @@ export function RentalCar() {
       {rentalCar.returnTimeChangeNeeded && (
         <WarningCard level="warn" title="Rückgabezeit prüfen" icon="⏰">
           {rentalCar.returnTimeChangeNeeded}
+        </WarningCard>
+      )}
+
+      {/* v0.7.2: Geschätzte Übernahme-Uhrzeit (live, falls Tracker läuft). */}
+      <Card title="Übernahme heute" icon="🕐">
+        <p className="text-sm">
+          Voraussichtliche Abholung am Get-Your-Car-Schalter:
+        </p>
+        <p className="mt-1 text-lg font-semibold text-zypern-blue dark:text-sky-300">
+          {isLivePickup ? '≈ ' : '≈ '}
+          {formatDualTime(pickupMs)}
+          {isLivePickup && (
+            <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+              📡 live
+            </span>
+          )}
+        </p>
+        <p className="mt-1 text-xs text-slate-400">
+          Aus {isLivePickup ? 'Live-ETA' : 'Plan-Landezeit'} + Gepäck ({JOURNEY_BUFFERS_OUTBOUND.luggageMin} min)
+          + Übernahme ({JOURNEY_BUFFERS_OUTBOUND.carPickupMin} min). Schätzwert.
+        </p>
+      </Card>
+
+      {/* v0.7.2: Rückgabe-Countdown am Abreisetag (≤36h vor Deadline). */}
+      {showReturnCountdown && (
+        <WarningCard level="warn" title="Mietwagen-Rückgabe" icon="⏰">
+          <p className="text-sm">
+            Noch <strong>{formatCountdownHrsMin(msUntilReturn)}</strong> bis zur Rückgabe
+            (geplant 15:30 Uhr PFO).
+          </p>
         </WarningCard>
       )}
 

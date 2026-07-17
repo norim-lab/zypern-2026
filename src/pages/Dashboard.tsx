@@ -19,6 +19,7 @@ import { UpcomingEventsCard } from '@/components/widgets/UpcomingEventsCard'
 import { HomeWeatherWidget } from '@/components/widgets/HomeWeatherWidget'
 import { HomeSunLine } from '@/components/widgets/HomeSunLine'
 import { TravelDayCard, TRAVEL_DAY_CARDS } from '@/components/widgets/TravelDayCard'
+import { JourneyTimeline } from '@/components/widgets/JourneyTimeline'
 import { RecommendationsCard } from '@/components/widgets/RecommendationsCard'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -98,9 +99,23 @@ export function Dashboard() {
         <>
           <TravelDayCard kind="to-airport" {...TRAVEL_DAY_CARDS['to-airport']} />
           <TravelDayCard kind="to-home-cy" {...TRAVEL_DAY_CARDS['to-home-cy']} />
+          {/* v0.7.2: Kompakte Hinflug-Kette (nächste 3 Etappen) + Link zum Zeitstrahl. */}
+          <JourneyTimeline direction="outbound" title="🕐 Ankunft heute" maxStages={3} />
+          <Button variant="ghost" onClick={() => navigate('/fluege')} className="!min-h-0 !py-1.5 text-xs">
+            → Vollständiger Reise-Zeitstrahl
+          </Button>
         </>
       )}
-      {showHomebound && <TravelDayCard kind="homebound" {...TRAVEL_DAY_CARDS['homebound']} />}
+      {showHomebound && (
+        <>
+          <TravelDayCard kind="homebound" {...TRAVEL_DAY_CARDS['homebound']} />
+          {/* v0.7.2: Kompakte Rückreise-Kette (nächste 3 Etappen) + Link. */}
+          <JourneyTimeline direction="return" title="🕐 Heimreise heute" maxStages={3} />
+          <Button variant="ghost" onClick={() => navigate('/fluege')} className="!min-h-0 !py-1.5 text-xs">
+            → Vollständiger Reise-Zeitstrahl
+          </Button>
+        </>
+      )}
 
       {/* Tageswetter-Detail direkt auf dem Dashboard (v0.5 §1). */}
       {weather && hourlyData && (

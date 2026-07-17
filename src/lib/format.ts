@@ -129,3 +129,16 @@ export function formatSunLine(
   const suffix = label ? ` (${label})` : ''
   return `↑ ${rise} · ↓ ${set}${suffix}`
 }
+
+/**
+ * v0.7.2: Formatiert eine verbleibende Zeitspanne (ms) als „X Std Y Min"
+ * bzw. „Y Min" — für Countdowns (z. B. Mietwagen-Rückgabe).
+ */
+export function formatCountdownHrsMin(ms: number): string {
+  if (ms <= 0) return '0 Min'
+  const totalMin = Math.floor(ms / 60_000)
+  const h = Math.floor(totalMin / 60)
+  const m = totalMin % 60
+  if (h <= 0) return `${m} Min`
+  return `${h} Std ${m} Min`
+}
